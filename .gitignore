@@ -1,1 +1,17 @@
+# --- AI and Machine Learning ---
+# Exclude large dataset directories
+datasets/
+data/
 
+# Exclude training outputs and binary weights
+runs/
+*.pt
+*.onnx
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+
+# --- Docker ---
+.docker/
+*.log
