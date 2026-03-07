@@ -1,13 +1,6 @@
 # --- AI and Machine Learning ---
-# Exclude large dataset directories
-datasets/
-models/
-data/
-
-# Exclude training outputs and binary weights
-runs/
-*.pt
-*.onnx
+# Ignore the entire training directory (including datasets, models, andtraining scripts)
+training/
 
 # --- Python ---
 __pycache__/
