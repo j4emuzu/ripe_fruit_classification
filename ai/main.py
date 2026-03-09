@@ -51,7 +51,5 @@ async def predict(file: UploadFile = File(...)):
     return {
         "fruit_name": fruit_raw.capitalize(),
         "status": status_raw.capitalize(),
-        "confidence_score": round(confidence, 4),   # Decimal for logic
-        "confidence_display": f"{confidence:.2%}",  # Percentage for UI
-        "raw_label": class_name
+        "confidence_score": round(confidence, 4)
     }
