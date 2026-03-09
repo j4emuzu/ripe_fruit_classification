@@ -1,27 +1,27 @@
-# Build stage to install dependencies
-FROM python:3.10-slim AS builder
-WORKDIR /app
-RUN pip install --no-cache-dir ultralytics fastapi uvicorn python-multipart pillow
+# Base Image
+FROM python:3.9-slim
 
-FROM python:3.10-slim
 WORKDIR /app
 
-# Install minimal system dependencies for OpenCV
+# Install system dependencies for OpenCV and YOLO
 RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy installed libraries from the builder stage
-COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
+# Install dependencies for YOLO and FastAPI
+RUN pip install --no-cache-dir \
+    ultralytics \
+    fastapi \
+    uvicorn \
+    python-multipart \
+    opencv-python-headless
 
-# Embed model and source code for immediate functionality
+# Embed the latest trained v5 model and API code
 COPY ai/best.pt /app/best.pt
 COPY ai/main.py /app/main.py
 
-# Expose API port
+# Expose Port 8000 for internal Docker Bridge network communication
 EXPOSE 8000
 
-# Start the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
