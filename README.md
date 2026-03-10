@@ -1,4 +1,3 @@
-
 # 🍎 Fruit Ripeness Classification
 
 Welcome to **Fruit Ripeness Classification**, an AI inference service designed to classify fruit ripeness. This service acts as the "Brain" within our distributed system, processing image data and returning precise classification results via a Docker Bridge Network.
@@ -22,6 +21,9 @@ Open **Terminal** or **Command Prompt** and run the following commands to downlo
 git clone https://github.com/j4emuzu/ripe_fruit_classification.git
 cd your-repo-name
 ```
+git clone -b ai/model-training https://github.com/j4emuzu/ripe_fruit_classification.git
+```
+**!!!** This branch is used for testing and let our team access the ai-service feature easily **!!!** 
 
 ### 3. Launching the Service
 Start the AI service with a single command. Docker will automatically pull the environment, install dependencies, and load the model:
