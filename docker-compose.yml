@@ -1,17 +1,145 @@
+# ╔════════════════════════════════════════════════════════════════════╗
+# ║    SINGHA SODA VISION BOX - Docker Compose Configuration            ║
+# ║                                                                      ║
+# ║    Services:                                                         ║
+# ║      - web        : Nginx (Reverse Proxy + Static Server)           ║
+# ║      - api        : FastAPI (YOLO Inference)                        ║
+# ║                                                                      ║
+# ║    Network: Internal Docker bridge network                          ║
+# ║    Volumes: source code + model mounted                             ║
+# ║    Ports: 8000:8000 (External)                                      ║
+# ╚════════════════════════════════════════════════════════════════════╝
+
 version: '3.8'
 
 services:
-  web:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./web/index.html:/usr/share/nginx/html/index.html
-      - ./web/nginx.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - yolo-service
+  # ┌──────────────────────────────────────────────────────────────────┐
+  # │ SERVICE: api (FastAPI + YOLO)                                    │
+  # │ Purpose: Image classification inference                          │
+  # │ Image: Built from ./ai/Dockerfile                                │
+  # │ Internal Port: 8000 (exposed to web service only)                │
+  # │ External: No direct port exposure (behind Nginx)                 │
+  # └──────────────────────────────────────────────────────────────────┘
+  api:
+    build:
+      context: ./ai
+      dockerfile: Dockerfile
+    container_name: fruit_api
 
-  yolo-service:
-    build: ./ai
-    # No ports exposed to the host! 
-    # Nginx will communicate with it internally on port 8000.
+    # ─ Restart policy
+    restart: unless-stopped
+
+    # ─ Working directory inside container
+    working_dir: /app
+
+    # ─ Environment variables (for FastAPI/Python)
+    environment:
+      - PYTHONUNBUFFERED=1 # Real-time logs (no buffering)
+      - UVICORN_HOST=0.0.0.0 # Listen on all interfaces
+      - UVICORN_PORT=8000 # Internal port
+      - UVICORN_LOG_LEVEL=info # Log level
+
+    # ─ Volume mounts
+    volumes:
+      # Mount source code (live reload in dev)
+      - ./ai:/app:ro # Read-only source
+      # Model file must be present in ./ai/
+      # e.g., ./ai/best.pt
+
+      # ─ Ports (internal only - not exposed to host)
+      # ports:
+      #   - "8000:8000"  # COMMENTED: Access through Nginx only!
+
+      # ─ Health check
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/docs" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # ─ Networks
+    networks:
+      - app-network
+
+    # ─ Resource limits (optional - adjust based on GPU/CPU)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+
+  # ┌──────────────────────────────────────────────────────────────────┐
+  # │ SERVICE: web (Nginx)                                             │
+  # │ Purpose: Reverse proxy + Static file serving                     │
+  # │ Image: Official Nginx (Alpine, lightweight)                      │
+  # │ Exposed Port: 8000 (external)                                    │
+  # │ Depends on: api service                                          │
+  # └──────────────────────────────────────────────────────────────────┘
+  web:
+    image: nginx:1.25-alpine
+    container_name: fruit_web
+
+    # ─ Restart policy
+    restart: unless-stopped
+
+    # ─ Depends on api being ready
+    depends_on:
+      api:
+        condition: service_healthy
+
+    # ─ Volume mounts
+    volumes:
+      # Nginx configuration
+      - ./web/nginx.conf:/etc/nginx/nginx.conf:ro
+
+      # Static files (HTML, CSS, JS, images)
+      - ./web:/web:ro # Read-only mount to /web (serves root /)
+
+    # ─ Ports (map 8000:8000)
+    ports:
+      - "8000:8000" # External: localhost:8000 → Internal: Container port 8000
+
+    # ─ Health check
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # ─ Networks
+    networks:
+      - app-network
+
+    # ─ Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+# ┌──────────────────────────────────────────────────────────────────────┐
+# │ NETWORKS: Internal Docker bridge network                             │
+# │ Services communicate via container names (e.g., api:8000)            │
+# │ Not exposed to host machine directly                                 │
+# └──────────────────────────────────────────────────────────────────────┘
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# ┌──────────────────────────────────────────────────────────────────────┐
+# │ VOLUMES: (Optional) For persistent data or large model files         │
+# │ Uncomment if needed for model caching, logs, etc.                    │
+# └──────────────────────────────────────────────────────────────────────┘
+# volumes:
+#   api_cache:
+#     driver: local
+#   logs:
+#     driver: local
