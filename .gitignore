@@ -1,1 +1,17 @@
+# --- AI and Machine Learning ---
+# Ignore heavy training data
+training/
 
+# Ignore all .pt files
+*.pt
+
+# BUT allow this specific model file
+!ai/best.pt
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+
+# --- Docker ---
+.docker/
+*.log

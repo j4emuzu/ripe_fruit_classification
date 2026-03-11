@@ -134,6 +134,21 @@ networks:
       config:
         - subnet: 172.20.0.0/16
 
+  yolo-service:
+    build:
+      context: .
+      dockerfile: ai/Dockerfile
+    container_name: yolo-service
+    # runtime: nvidia  <-- Comment out by default for compatibility
+    # deploy:          <-- Add this for modern Docker GPU support (Optional)
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    shm_size: '2gb'
+    restart: always
 # ┌──────────────────────────────────────────────────────────────────────┐
 # │ VOLUMES: (Optional) For persistent data or large model files         │
 # │ Uncomment if needed for model caching, logs, etc.                    │

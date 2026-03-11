@@ -18,6 +18,9 @@ Ensure you have the following installed on your system:
 ### 2. Clone and Enter Folder 
 Open **Terminal** or **Command Prompt** and run the following commands to download the project and enter the directory:
 ```bash 
+git clone https://github.com/j4emuzu/ripe_fruit_classification.git
+cd your-repo-name
+```
 git clone -b ai/model-training https://github.com/j4emuzu/ripe_fruit_classification.git
 ```
 **!!!** This branch is used for testing and let our team access the ai-service feature easily **!!!** 
