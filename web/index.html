@@ -1,1 +1,1041 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriFresh Scan</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#f5f0e8;--warm:#ede8de;--leaf:#2d5a27;--sage:#5a8a52;--mint:#8ebe82;
+  --earth:#7c5c3a;--sand:#c4a882;--coral:#d4604a;--gold:#c8973a;--sky:#4a8fa8;
+  --text:#2a2318;--muted:#7a6e5f;--faint:#b8ae9e;
+  --card:rgba(255,253,248,0.9);--border:rgba(180,165,140,0.25);
+  --r:18px;--rs:12px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:var(--text);overflow-x:hidden;}
 
+/* BG TEXTURE */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 60% at 5% 0%,rgba(90,138,82,0.12) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 70% at 100% 100%,rgba(200,151,58,0.09) 0%,transparent 55%),
+    radial-gradient(ellipse 40% 40% at 50% 50%,rgba(245,240,232,0) 0%,transparent 100%),
+    linear-gradient(165deg,#f8f4ed 0%,#f1ebe0 45%,#ede6d8 100%);
+}
+/* organic blob decorations */
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    radial-gradient(circle 180px at 92% 8%,rgba(90,138,82,0.06) 0%,transparent 70%),
+    radial-gradient(circle 240px at 0% 80%,rgba(196,168,130,0.08) 0%,transparent 70%);
+}
+
+/* HEADER */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:300;height:68px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;
+  background:rgba(245,240,232,0.82);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:13px;}
+.brand-mark{
+  width:48px;height:48px;border-radius:14px;
+  background:linear-gradient(145deg,#fdf8ee,#f5edda);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(180,130,50,0.18),inset 0 1px 0 rgba(255,255,255,0.6);
+  position:relative;flex-shrink:0;overflow:hidden;
+}
+.brand-mark::after{
+  content:'';position:absolute;inset:-3px;border-radius:17px;
+  border:1.5px solid rgba(180,130,50,0.3);
+  animation:pulse 3.5s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0;transform:scale(1.15)}}
+.brand-text{line-height:1.2;}
+.brand-name{font-family:'Instrument Serif',serif;font-size:1.2rem;font-style:italic;color:var(--leaf);letter-spacing:-0.01em;}
+.brand-name strong{font-style:normal;color:var(--text);}
+.brand-sub{font-size:0.6rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--faint);margin-top:1px;}
+.hright{display:flex;align-items:center;gap:10px;}
+.hpill{
+  font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  padding:5px 13px;border-radius:50px;
+  background:rgba(45,90,39,0.08);border:1px solid rgba(45,90,39,0.18);color:var(--leaf);
+}
+.scanbtn{
+  position:relative;height:40px;padding:0 20px;border-radius:50px;
+  background:linear-gradient(135deg,var(--leaf),var(--sage));
+  border:none;cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:0.75rem;font-weight:700;
+  letter-spacing:0.04em;color:white;
+  box-shadow:0 4px 18px rgba(45,90,39,0.28),inset 0 1px 0 rgba(255,255,255,0.15);
+  transition:all 0.22s ease;overflow:hidden;
+}
+.scanbtn::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);transition:background 0.2s;}
+.scanbtn:hover::before{background:rgba(255,255,255,0.08);}
+.scanbtn:hover{transform:translateY(-1px);box-shadow:0 7px 24px rgba(45,90,39,0.35);}
+.scanbtn svg{width:14px;height:14px;fill:white;flex-shrink:0;}
+.scanbtn input{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;}
+
+/* FRUIT TABS */
+.ftabs{
+  position:fixed;top:68px;left:0;right:0;z-index:200;
+  display:flex;align-items:stretch;
+  background:rgba(245,240,232,0.9);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  overflow-x:auto;padding:0 40px;
+  scrollbar-width:none;
+}
+.ftabs::-webkit-scrollbar{display:none;}
+.ftab{
+  display:flex;align-items:center;gap:7px;padding:12px 16px;
+  border:none;background:transparent;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;font-weight:600;
+  color:var(--faint);white-space:nowrap;
+  border-bottom:2px solid transparent;
+  transition:all 0.2s ease;
+}
+.ftab:hover{color:var(--muted);}
+.ftab.active{color:var(--leaf);border-bottom-color:var(--leaf);}
+.ftab-e{font-size:1.05rem;line-height:1;}
+.ftag{font-size:0.56rem;font-weight:700;padding:2px 7px;border-radius:50px;letter-spacing:0.06em;}
+.ftag.fresh{background:rgba(90,138,82,0.15);color:var(--leaf);}
+.ftag.stale{background:rgba(212,96,74,0.12);color:var(--coral);}
+
+/* MAIN LAYOUT */
+main{
+  position:relative;z-index:1;
+  padding:148px 40px 48px;
+  display:grid;grid-template-columns:1fr 1fr;gap:22px;
+  max-width:1280px;margin:0 auto;align-items:stretch;
+}
+
+/* LEFT = fruit stage + nutrition + advice */
+.lp{display:flex;flex-direction:column;gap:16px;animation:slideUp 0.6s cubic-bezier(0.22,1,0.36,1) both;height:100%;}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+/* FRUIT STAGE */
+.fstage{
+  position:relative;border-radius:28px;overflow:hidden;
+  aspect-ratio:1/0.82;
+  background:linear-gradient(150deg,#eee8dc 0%,#e4dccf 100%);
+  border:1px solid rgba(196,168,130,0.3);
+  box-shadow:0 20px 60px rgba(100,80,50,0.12),0 4px 16px rgba(100,80,50,0.06),inset 0 1px 0 rgba(255,255,255,0.5);
+  display:flex;align-items:center;justify-content:center;
+}
+/* organic leaf pattern overlay */
+.fstage::before{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 55% 50% at 50% 48%,rgba(90,138,82,0.06) 0%,transparent 65%),
+    url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cellipse cx='40' cy='40' rx='1.5' ry='1.5' fill='%235a8a52' fill-opacity='0.03'/%3E%3C/svg%3E");
+}
+.femoji{
+  font-size:160px;line-height:1;
+  filter:drop-shadow(0 18px 40px rgba(80,60,30,0.28)) drop-shadow(0 4px 12px rgba(80,60,30,0.12));
+  position:relative;z-index:2;user-select:none;transition:filter 0.3s;
+}
+.femoji.pop{animation:fpop 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes fpop{0%{transform:scale(0.5) rotate(-10deg);opacity:0;}65%{transform:scale(1.08) rotate(1.5deg);opacity:1;}100%{transform:scale(1) rotate(0);opacity:1;}}
+
+.papaya-svg-wrap{width:200px;height:200px;position:relative;z-index:2;filter:drop-shadow(0 18px 40px rgba(80,60,30,0.28)) drop-shadow(0 4px 12px rgba(80,60,30,0.12));display:none;user-select:none;}
+.papaya-svg-wrap.pop{animation:fpop 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+.papaya-svg-wrap svg{width:100%;height:100%;}
+
+.iw{position:absolute;inset:0;z-index:2;display:none;}
+.iw img{width:100%;height:100%;object-fit:cover;}
+
+/* STATUS BADGES */
+.sbadges{position:absolute;top:16px;left:16px;right:16px;display:flex;justify-content:space-between;align-items:flex-start;z-index:10;}
+.sbadge{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 15px;border-radius:50px;
+  font-size:0.78rem;font-weight:700;letter-spacing:0.03em;
+  backdrop-filter:blur(12px);
+  opacity:0;transform:translateY(-6px);
+  transition:all 0.38s cubic-bezier(0.34,1.4,0.64,1);
+}
+.sbadge.show{opacity:1;transform:translateY(0);}
+.sbadge.ripe{background:rgba(90,138,82,0.18);border:1px solid rgba(90,138,82,0.3);color:var(--leaf);}
+.sbadge.unripe{background:rgba(212,96,74,0.14);border:1px solid rgba(212,96,74,0.28);color:var(--coral);}
+.bdot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 2s ease infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
+.cbadge{
+  background:rgba(245,240,232,0.75);backdrop-filter:blur(10px);
+  border:1px solid rgba(196,168,130,0.4);
+  padding:6px 12px;border-radius:50px;
+  font-size:0.7rem;font-weight:700;color:var(--earth);
+  opacity:0;transform:translateY(-6px);
+  transition:all 0.38s 0.08s cubic-bezier(0.34,1.4,0.64,1);
+}
+.cbadge.show{opacity:1;transform:translateY(0);}
+
+/* SCAN OVERLAY */
+.sov{
+  position:absolute;inset:0;z-index:20;
+  background:rgba(245,240,232,0.88);backdrop-filter:blur(4px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  opacity:0;pointer-events:none;transition:opacity 0.3s;border-radius:28px;
+}
+.sov.on{opacity:1;pointer-events:all;}
+.scanline{
+  position:absolute;left:10%;right:10%;height:1.5px;
+  background:linear-gradient(90deg,transparent,var(--sage),transparent);
+  box-shadow:0 0 8px rgba(90,138,82,0.5);
+  animation:scanmove 1.8s ease-in-out infinite;opacity:0;
+}
+.sov.on .scanline{opacity:1;}
+@keyframes scanmove{0%{top:8%}100%{top:92%}}
+.srings{position:relative;width:72px;height:72px;display:flex;align-items:center;justify-content:center;}
+.sring{position:absolute;border-radius:50%;border:2px solid transparent;animation:spin 1s linear infinite;}
+.r1{inset:0;border-top-color:var(--sage);}
+.r2{inset:10px;border-top-color:var(--mint);animation-duration:0.68s;animation-direction:reverse;}
+.r3{inset:20px;border-top-color:rgba(90,138,82,0.35);}
+@keyframes spin{to{transform:rotate(360deg)}}
+.slbl{font-size:0.75rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--sage);}
+
+/* FRUIT META */
+.fmeta{
+  background:var(--card);backdrop-filter:blur(16px);
+  border:1px solid var(--border);border-radius:var(--r);
+  padding:18px 22px;
+  box-shadow:0 4px 20px rgba(100,80,50,0.07),0 1px 4px rgba(100,80,50,0.04);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.fname{font-family:'Instrument Serif',serif;font-size:1.45rem;color:var(--text);line-height:1.1;}
+.flatin{font-size:0.7rem;color:var(--faint);margin-top:4px;font-style:italic;}
+.fscore{display:flex;flex-direction:column;align-items:flex-end;}
+.sval{font-family:'Instrument Serif',serif;font-size:1.55rem;color:var(--leaf);line-height:1;}
+.slbl2{font-size:0.58rem;color:var(--faint);text-transform:uppercase;letter-spacing:0.1em;margin-top:2px;}
+
+/* RIGHT = body health + recipe */
+.rp{display:flex;flex-direction:column;gap:14px;animation:slideUp 0.6s 0.1s cubic-bezier(0.22,1,0.36,1) both;height:100%;}
+/* Both columns stretch to equal height in grid */
+.lp,.rp{align-self:stretch;}
+/* Left: advice card grows to fill remaining vertical space */
+.lp>.advice-card{flex:1;display:flex;flex-direction:column;}
+.lp>.advice-card .aw{flex:1;display:flex;align-items:flex-start;}
+/* Right: health card grows to fill remaining vertical space */
+.rp>.dc.health-card{flex:1;display:flex;flex-direction:column;}
+.rp>.dc.health-card .health-grid{flex:1;}
+
+/* CARDS */
+.dc{
+  background:var(--card);backdrop-filter:blur(16px);
+  border:1px solid var(--border);border-radius:var(--r);
+  padding:20px 22px;
+  box-shadow:0 4px 20px rgba(100,80,50,0.07),0 1px 4px rgba(100,80,50,0.04);
+  position:relative;overflow:hidden;
+}
+.dc::before{
+  content:'';position:absolute;top:0;left:24px;right:24px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(90,138,82,0.25),transparent);
+}
+.section-label{
+  font-size:0.6rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-label em{color:var(--sage);font-style:normal;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* NUTRITION */
+.ngrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.nc{
+  background:linear-gradient(150deg,rgba(255,252,248,0.8),rgba(245,240,232,0.5));
+  border:1px solid rgba(196,168,130,0.2);border-radius:var(--rs);
+  padding:14px 8px;text-align:center;
+  transition:all 0.22s ease;cursor:default;position:relative;overflow:hidden;
+}
+.nc::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--sage),var(--mint));
+  transform:scaleX(0);transform-origin:left;transition:transform 0.3s ease;
+}
+.nc:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(100,80,50,0.1);border-color:rgba(90,138,82,0.25);}
+.nc:hover::after{transform:scaleX(1);}
+.ni{font-size:1.2rem;margin-bottom:7px;}
+.nv{font-family:'Instrument Serif',serif;font-size:1.15rem;color:var(--text);line-height:1;}
+.nu{font-size:0.56rem;color:var(--faint);font-weight:600;letter-spacing:0.06em;}
+.nn{font-size:0.66rem;color:var(--muted);margin-top:3px;}
+
+/* BODY HEALTH INDICATORS — NEW SECTION */
+.health-grid{display:grid;grid-template-columns:1fr;gap:8px;}
+.hi{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 14px;border-radius:var(--rs);
+  border:1px solid transparent;transition:all 0.2s ease;
+  position:relative;overflow:hidden;
+}
+.hi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.hi.good{background:rgba(90,138,82,0.07);border-color:rgba(90,138,82,0.18);}
+.hi.good::before{background:linear-gradient(180deg,var(--mint),var(--sage));}
+.hi.bad{background:rgba(212,96,74,0.06);border-color:rgba(212,96,74,0.18);}
+.hi.bad::before{background:linear-gradient(180deg,#f0907e,var(--coral));}
+.hi.warn{background:rgba(200,151,58,0.07);border-color:rgba(200,151,58,0.2);}
+.hi.warn::before{background:linear-gradient(180deg,#e8b84e,var(--gold));}
+.hi-icon{font-size:1.3rem;flex-shrink:0;line-height:1;margin-top:1px;}
+.hi-body{flex:1;}
+.hi-title{font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:2px;}
+.hi-detail{font-size:0.7rem;color:var(--muted);line-height:1.55;}
+.hi-badge{
+  flex-shrink:0;font-size:0.58rem;font-weight:700;letter-spacing:0.06em;
+  padding:3px 9px;border-radius:50px;align-self:flex-start;
+  text-transform:uppercase;
+}
+.hi.good .hi-badge{background:rgba(90,138,82,0.15);color:var(--leaf);}
+.hi.bad .hi-badge{background:rgba(212,96,74,0.12);color:var(--coral);}
+.hi.warn .hi-badge{background:rgba(200,151,58,0.14);color:var(--gold);}
+
+/* ADVICE */
+.aw{
+  background:linear-gradient(135deg,rgba(90,138,82,0.06),rgba(196,168,130,0.05));
+  border:1px solid rgba(90,138,82,0.15);border-radius:var(--rs);
+  padding:15px 16px 15px 22px;
+  font-size:0.83rem;line-height:1.8;color:var(--muted);font-style:italic;
+  position:relative;
+}
+.aw::before{
+  content:'"';position:absolute;top:2px;left:9px;
+  font-family:'Instrument Serif',serif;font-size:2.8rem;line-height:1;
+  color:rgba(90,138,82,0.15);pointer-events:none;
+}
+
+/* RECIPE CARDS */
+.rcrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.rcard{
+  background:var(--gl,rgba(255,252,248,0.7));
+  border:1px solid var(--border);border-radius:var(--rs);
+  padding:15px 12px;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:all 0.22s cubic-bezier(0.34,1.4,0.64,1);
+}
+.rcard::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(90,138,82,0.1),transparent);opacity:0;transition:opacity 0.22s;}
+.rcard:hover{transform:translateY(-4px) scale(1.02);border-color:rgba(90,138,82,0.35);box-shadow:0 10px 28px rgba(80,60,30,0.12);}
+.rcard:hover::before,.rcard.p::before{opacity:1;}
+.rcard.p{border-color:rgba(90,138,82,0.38);background:rgba(90,138,82,0.08);}
+.ri{font-size:1.85rem;position:relative;z-index:1;}
+.rn{font-size:0.82rem;font-weight:700;color:var(--text);position:relative;z-index:1;}
+.rsub{font-size:0.65rem;color:var(--faint);position:relative;z-index:1;}
+.rstar{
+  font-size:0.56rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  padding:2px 9px;border-radius:50px;
+  background:rgba(45,90,39,0.12);color:var(--leaf);border:1px solid rgba(45,90,39,0.2);
+  opacity:0;transition:opacity 0.2s;position:relative;z-index:1;
+}
+.rcard.p .rstar{opacity:1;}
+
+/* SHARE BTN */
+.shbtn{
+  width:100%;padding:15px;
+  background:linear-gradient(135deg,var(--leaf) 0%,#3d7a35 100%);
+  border:none;border-radius:var(--rs);color:white;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;font-weight:700;letter-spacing:0.06em;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:0 6px 22px rgba(45,90,39,0.25),inset 0 1px 0 rgba(255,255,255,0.18);
+  transition:all 0.22s ease;position:relative;overflow:hidden;
+}
+.shbtn::before{content:'';position:absolute;top:-50%;left:-60%;width:40%;height:200%;background:rgba(255,255,255,0.12);transform:skewX(-20deg);transition:left 0.45s ease;}
+.shbtn:hover::before{left:120%;}
+.shbtn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(45,90,39,0.33);}
+
+/* MODAL */
+.ov{display:none;position:fixed;inset:0;z-index:500;background:rgba(42,35,24,0.5);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;}
+.ov.open{display:flex;}
+.modal{
+  background:#faf7f2;border:1px solid var(--border);border-radius:26px;
+  width:100%;max-width:480px;max-height:88vh;overflow-y:auto;
+  box-shadow:0 30px 70px rgba(80,60,30,0.2),0 4px 20px rgba(80,60,30,0.08);
+  animation:modalIn 0.3s cubic-bezier(0.34,1.4,0.64,1) both;
+}
+.modal::-webkit-scrollbar{width:3px;}
+.modal::-webkit-scrollbar-thumb{background:var(--faint);border-radius:2px;}
+@keyframes modalIn{from{opacity:0;transform:scale(0.9) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.mhead{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 24px 16px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:#faf7f2;border-radius:26px 26px 0 0;
+}
+.mtitle{font-family:'Instrument Serif',serif;font-size:1.1rem;color:var(--text);}
+.mx{
+  width:30px;height:30px;border-radius:50%;
+  border:1px solid var(--border);background:rgba(245,240,232,0.7);
+  color:var(--muted);font-size:0.8rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all 0.18s;
+}
+.mx:hover{background:rgba(212,96,74,0.1);border-color:rgba(212,96,74,0.3);color:var(--coral);}
+.mbody{padding:18px 22px 24px;}
+
+/* RECIPE TABS */
+.rtabs{display:flex;gap:8px;margin-bottom:14px;}
+.rtab{
+  flex:1;padding:8px;border-radius:var(--rs);
+  background:rgba(245,240,232,0.7);border:1px solid var(--border);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:0.76rem;font-weight:700;
+  color:var(--muted);cursor:pointer;transition:all 0.18s;text-align:center;
+}
+.rtab:hover{border-color:rgba(90,138,82,0.3);color:var(--text);}
+.rtab.on{background:rgba(90,138,82,0.1);border-color:rgba(90,138,82,0.35);color:var(--leaf);}
+
+/* RECIPE ITEMS */
+.ritem{
+  display:flex;align-items:flex-start;gap:13px;
+  padding:13px 14px;border-radius:var(--rs);
+  background:rgba(245,240,232,0.6);border:1px solid var(--border);
+  margin-bottom:8px;cursor:pointer;transition:all 0.18s ease;
+}
+.ritem:last-child{margin-bottom:0;}
+.ritem:hover{border-color:rgba(90,138,82,0.32);background:rgba(90,138,82,0.07);transform:translateX(3px);}
+.ritem:hover .rarr{opacity:1;transform:translateX(0);}
+.remoji{font-size:1.75rem;flex-shrink:0;}
+.rinfo{flex:1;}
+.rname{font-size:0.86rem;font-weight:700;color:var(--text);margin-bottom:3px;}
+.rdesc{font-size:0.72rem;color:var(--muted);line-height:1.55;}
+.rtag{
+  display:inline-block;margin-top:4px;font-size:0.58rem;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;
+  padding:2px 8px;border-radius:50px;
+  background:rgba(90,138,82,0.1);color:var(--sage);border:1px solid rgba(90,138,82,0.18);
+}
+.rarr{color:var(--sage);opacity:0;transform:translateX(-5px);transition:all 0.18s;font-size:1rem;align-self:center;}
+
+/* SOCIAL CARD */
+.scard{
+  border-radius:20px;overflow:hidden;margin-bottom:16px;position:relative;
+  background:linear-gradient(150deg,#1e3d1a 0%,#2d5a27 50%,#3a7030 100%);
+  box-shadow:0 16px 45px rgba(45,90,39,0.3),0 4px 12px rgba(45,90,39,0.15);
+  border:1px solid rgba(90,138,82,0.2);
+}
+.sct{display:flex;justify-content:space-between;align-items:center;padding:14px 18px 0;}
+.scbm{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.58rem;font-weight:800;letter-spacing:0.16em;color:rgba(142,190,130,0.7);text-transform:uppercase;}
+.scd{font-size:0.6rem;color:rgba(142,190,130,0.45);}
+.scm{padding:16px 20px 14px;text-align:center;}
+.sce{font-size:52px;line-height:1;margin-bottom:10px;filter:drop-shadow(0 8px 16px rgba(0,0,0,0.3));}
+.scn{font-family:'Instrument Serif',serif;font-size:1.3rem;font-style:italic;color:rgba(245,240,232,0.95);letter-spacing:-0.01em;margin-bottom:8px;}
+.scst{display:inline-flex;align-items:center;gap:6px;padding:5px 15px;border-radius:50px;font-size:0.74rem;font-weight:700;margin-bottom:13px;}
+.scst.ripe{background:rgba(90,138,82,0.25);color:#a8e0a0;border:1px solid rgba(90,138,82,0.3);}
+.scst.unripe{background:rgba(212,96,74,0.22);color:#f0a090;border:1px solid rgba(212,96,74,0.28);}
+.scnr{display:flex;background:rgba(0,0,0,0.2);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);margin-bottom:10px;}
+.scn2{flex:1;padding:10px 8px;text-align:center;}
+.scn2+.scn2{border-left:1px solid rgba(255,255,255,0.07);}
+.scnv{font-family:'Instrument Serif',serif;font-size:1rem;color:rgba(245,240,232,0.9);}
+.scnl{font-size:0.55rem;color:rgba(142,190,130,0.55);margin-top:2px;letter-spacing:0.06em;text-transform:uppercase;}
+.scr{font-size:0.7rem;color:rgba(142,190,130,0.5);font-style:italic;}
+.scb{padding:9px 16px 13px;text-align:center;border-top:1px solid rgba(255,255,255,0.07);background:rgba(0,0,0,0.1);}
+.sch{font-size:0.58rem;color:rgba(90,138,82,0.45);letter-spacing:0.05em;}
+.scacts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.scbtn{
+  padding:10px;border-radius:10px;
+  background:rgba(245,240,232,0.7);border:1px solid var(--border);
+  color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:0.76rem;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.18s;
+}
+.scbtn:hover{background:rgba(90,138,82,0.1);border-color:rgba(90,138,82,0.3);color:var(--leaf);}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:26px;left:50%;
+  transform:translateX(-50%) translateY(55px);
+  background:#faf7f2;border:1px solid rgba(90,138,82,0.3);
+  color:var(--leaf);padding:10px 22px;border-radius:50px;
+  font-size:0.8rem;font-weight:700;z-index:999;pointer-events:none;
+  transition:transform 0.38s cubic-bezier(0.34,1.4,0.64,1);
+  white-space:nowrap;box-shadow:0 8px 24px rgba(80,60,30,0.15);
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* BODY HEALTH SECTION decoration */
+.body-health-header{
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;
+}
+.bh-icon{
+  width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(90,138,82,0.15),rgba(142,190,130,0.1));
+  border:1px solid rgba(90,138,82,0.2);
+  display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;
+}
+.bh-label{font-size:0.6rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--faint);}
+.bh-label::after{content:'';display:block;} /* just spacer trick */
+
+@media(max-width:820px){
+  main{grid-template-columns:1fr;padding:130px 16px 36px;align-items:start;}
+  header,.ftabs{padding-left:18px;padding-right:18px;}
+  .femoji{font-size:110px;}
+  .lp,.rp{align-self:auto;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
+        <!-- Basket handle -->
+        <path d="M14 22 Q14 8 24 8 Q34 8 34 22" fill="none" stroke="#b5853a" stroke-width="3.2" stroke-linecap="round"/>
+        <!-- Basket body -->
+        <ellipse cx="24" cy="34" rx="17" ry="10" fill="#c8903c"/>
+        <!-- Basket weave lines horizontal -->
+        <path d="M7.5 30 Q24 26 40.5 30" fill="none" stroke="#a0702a" stroke-width="1.2" opacity="0.7"/>
+        <path d="M7 34 Q24 30 41 34" fill="none" stroke="#a0702a" stroke-width="1.2" opacity="0.7"/>
+        <path d="M8 38 Q24 34.5 40 38" fill="none" stroke="#a0702a" stroke-width="1.2" opacity="0.6"/>
+        <!-- Basket weave verticals -->
+        <line x1="14" y1="25" x2="12" y2="44" stroke="#a0702a" stroke-width="1" opacity="0.5"/>
+        <line x1="20" y1="24" x2="19" y2="44" stroke="#a0702a" stroke-width="1" opacity="0.5"/>
+        <line x1="24" y1="24" x2="24" y2="44" stroke="#a0702a" stroke-width="1" opacity="0.5"/>
+        <line x1="28" y1="24" x2="29" y2="44" stroke="#a0702a" stroke-width="1" opacity="0.5"/>
+        <line x1="34" y1="25" x2="36" y2="44" stroke="#a0702a" stroke-width="1" opacity="0.5"/>
+        <!-- Basket rim -->
+        <ellipse cx="24" cy="25" rx="17" ry="5" fill="#d4a04a"/>
+        <ellipse cx="24" cy="24.5" rx="17" ry="4.5" fill="#e8b85a"/>
+        <!-- Basket rim highlight -->
+        <ellipse cx="24" cy="23.5" rx="14" ry="2" fill="none" stroke="#f0cc7a" stroke-width="0.8" opacity="0.6"/>
+        <!-- Leaf green background for fruits -->
+        <ellipse cx="24" cy="22" rx="13" ry="5" fill="#5a9e46"/>
+        <!-- Leaf -->
+        <path d="M17 19 Q20 14 26 17 Q22 20 17 19z" fill="#4a8a36"/>
+        <path d="M28 18 Q32 13 36 17 Q32 19 28 18z" fill="#5aaa46"/>
+        <!-- Red apple -->
+        <circle cx="20" cy="20" r="5" fill="#e03030"/>
+        <circle cx="20" cy="20" r="5" fill="url(#appleGrad)"/>
+        <path d="M20 15.5 Q21 14 22 15" fill="none" stroke="#2d6a1a" stroke-width="1.2" stroke-linecap="round"/>
+        <!-- Apple shine -->
+        <ellipse cx="18.5" cy="18" rx="1.5" ry="2" fill="rgba(255,255,255,0.35)" transform="rotate(-20,18.5,18)"/>
+        <!-- Yellow/green apple -->
+        <circle cx="29" cy="20" r="4.5" fill="#c8d830"/>
+        <circle cx="29" cy="20" r="4.5" fill="url(#yellowAppleGrad)"/>
+        <ellipse cx="27.8" cy="18.2" rx="1.2" ry="1.8" fill="rgba(255,255,255,0.3)" transform="rotate(-20,27.8,18.2)"/>
+        <!-- Purple grapes cluster -->
+        <circle cx="24" cy="17" r="2.8" fill="#7b3fa0"/>
+        <circle cx="21" cy="18.5" r="2.5" fill="#8b50b0"/>
+        <circle cx="27" cy="18.5" r="2.5" fill="#7b3fa0"/>
+        <circle cx="24" cy="20" r="2.5" fill="#8b50b0"/>
+        <!-- Grape highlights -->
+        <circle cx="23" cy="16" r="0.8" fill="rgba(255,255,255,0.3)"/>
+        <circle cx="20.5" cy="17.8" r="0.7" fill="rgba(255,255,255,0.25)"/>
+        <circle cx="26.5" cy="17.8" r="0.7" fill="rgba(255,255,255,0.25)"/>
+        <!-- Gradients -->
+        <defs>
+          <radialGradient id="appleGrad" cx="35%" cy="30%" r="60%">
+            <stop offset="0%" stop-color="#ff6060"/>
+            <stop offset="100%" stop-color="#b01818"/>
+          </radialGradient>
+          <radialGradient id="yellowAppleGrad" cx="35%" cy="30%" r="60%">
+            <stop offset="0%" stop-color="#e8f060"/>
+            <stop offset="100%" stop-color="#90a010"/>
+          </radialGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="brand-text">
+      <div class="brand-name"><em>Nutri</em><strong>Fresh Scan</strong></div>
+      <div class="brand-sub">Body & Health · AI Analyzer</div>
+    </div>
+  </div>
+  <div class="hright">
+    <div class="hpill">Beta v2.1</div>
+    <button class="scanbtn" title="สแกน/อัปโหลด">
+      <svg viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.5-10h-1.83l-1.08-1.17A2 2 0 0 0 15.14 4H8.86a2 2 0 0 0-1.45.61L6.33 5.5H4.5A2.5 2.5 0 0 0 2 8v10a2.5 2.5 0 0 0 2.5 2.5h15A2.5 2.5 0 0 0 22 18V8a2.5 2.5 0 0 0-2.5-2.5z"/></svg>
+      สแกนผลไม้
+      <input type="file" accept="image/*" capture="environment" id="fileInput" onchange="handleFile(event)">
+    </button>
+  </div>
+</header>
+
+<div class="ftabs" id="ftabs"></div>
+
+<main>
+  <!-- LEFT: Fruit Stage + Nutrition + AI Advice -->
+  <div class="lp">
+    <div class="fstage" id="fstage">
+      <div class="scanline"></div>
+      <div class="sbadges">
+        <div class="sbadge" id="sbadge"><div class="bdot"></div><span id="btext">สุก</span></div>
+        <div class="cbadge" id="cbadge">94%</div>
+      </div>
+      <div class="femoji" id="femoji">🌿</div>
+      <div class="papaya-svg-wrap" id="papayaSvg">
+        <svg class="svg-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M925.1 55.6c11.3 10.2 111.4 103 91.6 186.6-6.8 28.7-29.6 69.3-31.2 72-20.4 35.6-31.8 41.2-51.6 70.4-23.4 34.5-33.1 65.7-51.6 126.7-15.4 50.6-19.3 76-28.2 112.6-16.2 66.8-33.9 139-75.1 206.4-17.9 29.2-66.6 106.7-164.2 154.8-89.6 44.2-171.8 39.8-206.4 37.5-164-10.8-272.3-112.3-305-145.4C377.3 603.4 651.2 329.5 925.1 55.6z" fill="#7CB342"/><path d="M682.5 817c18.9-26.1 24-39.7 72.1-162 106.3-270.4 110.9-278.3 127.3-294.1 23.8-22.9 69.3-61.9 91.5-127.2 3.8-11.1 6.1-23 7-37 5.1-78.8-50.6-136.1-55.4-140.9C920.2 51 862.8-4.7 784.1 0.4c-14 0.9-26 3.2-37 7-66.7 22.8-107.6 70.3-127.2 91.5-26.5 28.8-108.2 60-272.1 122-126.5 47.9-157.5 52.2-208.3 93.3-21.1 17.1-64 52.4-96 113.3C-14.1 537 7.4 645.8 15 683.4c18 89.3 63.5 160 88.2 193.4 0.1 0.2 0.2 0.3 0.3 0.4 0 0 0.2 0.2 0.4 0.3 0.3 0.1 2 1.5 2.1 1.5 117.6 84.3 214.4 98.8 214.4 98.8 17.3 2.6 92.8 12.5 181-20.1 105.9-39.1 162-114.4 181.1-140.7z" fill="#FFD54F"/><path d="M617.7 774.7c29.5-33.4 47.9-63 56.4-77.8 19-32.6 31.5-62.9 40-87.8 26.8-101.6 77-216.9 115.8-265.4 1.6-2 12-13.8 25.7-30.4 21.3-25.8 33-40 45.5-59.3 17.9-27.5 34-52.9 25.1-70.6-3.2-6.4-9.5-11.6-10.1-12-11.9-7.7-22-9.3-29.4-9.1-20.7 0.6-37.8 14.3-61.2 43-9 11.1-19.4 22.4-30.4 34.4-8.4 9.1-17 18.6-25.8 28.7C745.5 295.7 667 399.9 626 518.9c-3.5 10.1-10.9 32.6-23.7 63.3-11 26.4-20 50.1-33.6 70.7-27 40.9-62.4 67.5-82.7 82.7-6.3 4.7-36.6 26.9-85.2 41.1-19.9 5.8-58.7 16.7-109.6 11.4-33.2-3.4-59.5-12.5-76.6-19.8-4.1-7.1-9.8-18-14.9-31.8-26.6-71.7-7-138.2 0-160.9 12.3-39.6 30.6-67.3 40.2-80.5 22-30.1 44.8-48.2 60.3-60.3 10.6-8.3 28.4-22 54.3-34.8 15.4-7.6 23.6-9.9 56.1-22.4 23-8.8 41.5-16.4 53.2-21.2 176.7-93.5 235.5-129.7 250.3-143.2 1-0.9 12.5-11.4 28.6-25.7 19.3-17.1 20.6-17.8 28.2-24.7 32.7-29.7 49.1-44.6 50.4-65.1 0.2-3.3 1.2-18.7-8.8-31.3-0.7-0.9-5.4-6.7-11.4-9.7-18.7-9.4-46.8 9.2-76.8 29.6-17.6 12-31.5 22.4-53.9 41.9-9.7 8.4-19.8 17.2-30.4 25.7-54.7 43.7-173.4 77.6-265.4 115.8-54.7 22.7-101.8 42.3-154.8 84.7-23.9 19.2-95.9 80.5-127.1 167.3-10.5 29.2-15.6 59.1-16 61.5-5.9 35.4-5.5 65.8-3.6 88 0 0 5 58.6 54.1 159.9 2 4.1 5.1 9.7 10.6 15.1 5.5 5.5 11.2 8.7 15.3 10.7 101.8 49 159.6 53.9 159.6 53.9 22.1 1.8 52.5 2.3 88-3.6 14.9-2.5 37.4-7.2 61.4-16 78-28.7 126.3-83.3 155.6-116.5z" fill="#FFAB40"/><path d="M526.2 623.4c9.9-9.9 13.2-23.3 9.3-33.3 2.8-1.6 5.4-3.6 7.9-6 8-8 11.7-18.3 10.8-27.2 3.8-1.8 7.5-4.4 10.8-7.6 11.8-11.8 14.3-28.5 6.3-38.5 2.3-1.5 4.5-3.1 6.5-5.2 11.8-11.8 14.3-28.5 6.3-38.5 2.3-1.5 4.5-3.1 6.5-5.2 11.8-11.8 14.3-28.5 6.3-38.5 3.8-2.5 7.4-5.7 10.3-9.6 10.5-14 9.4-31.4-2.5-38.7-11.9-7.3-30-1.9-40.5 12.2-0.5 0.7-0.9 1.4-1.3 2.1-10-8-26.7-5.6-38.5 6.2-2 2-3.7 4.2-5.2 6.5-10-8-26.7-5.5-38.5 6.3-2 2-3.7 4.2-5.2 6.5-10-8-26.7-5.5-38.5 6.3-2.4 2.4-4.4 5.1-6 7.9-10-3.9-23.3-0.6-33.3 9.3-3.3 3.3-5.8 7-7.6 10.8-8.9-0.9-19.2 2.8-27.2 10.8-5.4 5.4-8.7 11.8-10.1 18.1-6.3 1.4-12.7 4.8-18.1 10.1-9.9 9.9-13.2 23.3-9.3 33.3-2.8 1.6-5.4 3.6-7.9 6-8 8-11.7 18.3-10.8 27.2-3.8 1.8-7.5 4.4-10.8 7.6-11.8 11.8-14.3 28.5-6.3 38.5-2.3 1.5-4.5 3.1-6.5 5.2-11.8 11.8-14.3 28.5-6.3 38.5-2.3 1.5-4.5 3.1-6.5 5.2-11.8 11.8-14.3 28.5-6.3 38.5-3.8 2.5-7.4 5.7-10.3 9.6-10.5 14-9.4 31.4 2.5 38.7 11.9 7.3 30 1.9 40.5-12.2 0.5-0.7 0.9-1.4 1.3-2.1 10 8 26.7 5.6 38.5-6.2 2-2 3.7-4.2 5.2-6.5 10 8 26.7 5.5 38.5-6.3 2-2 3.7-4.2 5.2-6.5 10 8 26.7 5.5 38.5-6.3 2.4-2.4 4.4-5.1 6-7.9 10 3.9 23.3 0.6 33.3-9.3 3.3-3.3 5.8-7 7.6-10.8 8.9 0.9 19.2-2.8 27.2-10.8 5.4-5.4 8.7-11.8 10.1-18.1 6.4-1.4 12.7-4.7 18.1-10.1z" fill="#424242"/></svg>
+      </div>
+      <div class="iw" id="iw"><img id="uimg" src="" alt=""></div>
+      <div class="sov" id="sov">
+        <div class="srings"><div class="sring r1"></div><div class="sring r2"></div><div class="sring r3"></div></div>
+        <div class="slbl">กำลังวิเคราะห์…</div>
+      </div>
+    </div>
+
+    <div class="fmeta">
+      <div>
+        <div class="fname" id="fname">NutriFresh Scan</div>
+        <div class="flatin" id="flatin">เลือกผลไม้เพื่อเริ่มการวิเคราะห์</div>
+      </div>
+      <div class="fscore" id="fscore" style="display:none">
+        <div class="sval" id="sval">—</div>
+        <div class="slbl2">ความแม่นยำ</div>
+      </div>
+    </div>
+
+    <!-- NUTRITION -->
+    <div class="dc">
+      <div class="section-label"><em>❧</em> โภชนาการ ต่อ 100g</div>
+      <div class="ngrid">
+        <div class="nc"><div class="ni">⚡</div><div class="nv" id="ne">—</div><div class="nu">kcal</div><div class="nn">พลังงาน</div></div>
+        <div class="nc"><div class="ni">💧</div><div class="nv" id="nk">—</div><div class="nu">mg</div><div class="nn">โพแทสเซียม</div></div>
+        <div class="nc"><div class="ni">🌟</div><div class="nv" id="nc2">—</div><div class="nu">mg</div><div class="nn">วิตามิน C</div></div>
+      </div>
+    </div>
+
+    <!-- AI ADVICE -->
+    <div class="dc advice-card">
+      <div class="section-label"><em>❧</em> คำแนะนำจาก AI</div>
+      <div class="aw"><div id="adv">เลือกผลไม้จากแถบด้านบนเพื่อรับคำแนะนำ…</div></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Body & Health + Recipe + Share -->
+  <div class="rp">
+    <!-- BODY & HEALTH — grows to fill equal height -->
+    <div class="dc health-card">
+      <div class="body-health-header">
+        <div class="bh-icon">🫀</div>
+        <div><div class="bh-label">Body &amp; Health · ผลต่อร่างกาย</div></div>
+        <div style="flex:1;height:1px;background:var(--border);margin-left:8px;"></div>
+      </div>
+      <div class="health-grid" id="healthGrid">
+        <div class="hi"><div class="hi-icon">🌿</div><div class="hi-body"><div class="hi-title">เลือกผลไม้เพื่อดูข้อมูล</div><div class="hi-detail">ข้อมูลสุขภาพจะแสดงตามชนิดผลไม้ที่เลือก</div></div></div>
+      </div>
+    </div>
+
+    <!-- RECIPE -->
+    <div class="dc">
+      <div class="section-label"><em>❧</em> เมนูแนะนำ</div>
+      <div class="rcrow">
+        <div class="rcard" id="sc" onclick="openRec('snack')"><div class="ri">🥪</div><div class="rn">Snack</div><div class="rsub">ของว่างเพื่อสุขภาพ</div></div>
+        <div class="rcard" id="sm" onclick="openRec('smoothie')"><div class="ri">🥤</div><div class="rn">Smoothie</div><div class="rsub">เครื่องดื่มสดชื่น</div></div>
+      </div>
+    </div>
+
+    <button class="shbtn" onclick="openShare()">✦ แชร์ผลการวิเคราะห์</button>
+  </div>
+</main>
+
+<!-- RECIPE MODAL -->
+<div class="ov" id="recOv">
+  <div class="modal">
+    <div class="mhead"><div class="mtitle" id="rtitle">เมนูแนะนำ</div><button class="mx" onclick="close2('recOv')">✕</button></div>
+    <div class="mbody">
+      <div class="rtabs">
+        <div class="rtab on" id="ts" onclick="swTab('snack')">🥪 Snack (5 เมนู)</div>
+        <div class="rtab" id="tsm" onclick="swTab('smoothie')">🥤 Smoothie (5 เมนู)</div>
+      </div>
+      <div id="rlist"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="ov" id="shOv">
+  <div class="modal">
+    <div class="mhead"><div class="mtitle">✦ NutriFresh Card</div><button class="mx" onclick="close2('shOv')">✕</button></div>
+    <div class="mbody">
+      <div class="scard">
+        <div class="sct"><div class="scbm">NutriFresh Scan</div><div class="scd" id="shdate"></div></div>
+        <div class="scm">
+          <div class="sce" id="she">🌿</div>
+          <div class="scn" id="shn">—</div>
+          <div class="scst" id="shst"><span>—</span></div>
+          <div class="scnr">
+            <div class="scn2"><div class="scnv" id="she2">—</div><div class="scnl">kcal</div></div>
+            <div class="scn2"><div class="scnv" id="shk">—</div><div class="scnl">K mg</div></div>
+            <div class="scn2"><div class="scnv" id="shc">—</div><div class="scnl">Vit C mg</div></div>
+          </div>
+          <div class="scr" id="shr">เมนูแนะนำ: —</div>
+        </div>
+        <div class="scb"><div class="sch">#NutriFreshScan #BodyHealth #โภชนาการ #HealthyEating #FreshFruit</div></div>
+      </div>
+      <div class="scacts">
+        <button class="scbtn" onclick="doShare('copy')">📋 คัดลอก</button>
+        <button class="scbtn" onclick="doShare('save')">💾 บันทึก</button>
+        <button class="scbtn" onclick="doShare('line')">💬 LINE</button>
+        <button class="scbtn" onclick="doShare('ig')">📸 Instagram</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── FRUIT DATA ──────────────────────────────────────────────
+const D = {
+apple:{
+    name:"แอปเปิ้ล", latin:"Malus domestica · Red Delicious", emoji:"🍎",
+    status:"สุก", conf:79,
+    nut:{e:52,k:107,c:4.6},
+    advice:"แอปเปิ้ลสุกพอดี รสหวานกรอบ ทานสดได้เลย มีไฟเบอร์สูงช่วยลดคอเลสเตอรอล แนะนำทานก่อนอาหารเพื่อช่วยควบคุมน้ำหนัก",
+    primary:"snack",
+    health:[
+      {type:"good",icon:"🍎",title:"ควรรับประทาน — สุกพอดี",detail:"เนื้อกรอบ สีแดงสม่ำเสมอ กลิ่นหอมหวาน เหมาะทานสดหรือจิ้มเนยถั่วทันที"},
+      {type:"good",icon:"❤️",title:"บำรุงหัวใจ",detail:"Quercetin และ Polyphenol ลดความเสี่ยงโรคหัวใจ ลดคอเลสเตอรอล LDL ได้ 13%"},
+      {type:"good",icon:"🩸",title:"ควบคุมน้ำตาลในเลือด",detail:"ดัชนีน้ำตาลต่ำ (GI 36) เหมาะสำหรับผู้ป่วยเบาหวานและคนที่ต้องการควบคุมน้ำหนัก"},
+      {type:"good",icon:"🦷",title:"บำรุงสุขภาพช่องปาก",detail:"การเคี้ยวแอปเปิ้ลกระตุ้นน้ำลาย ฆ่าเชื้อในช่องปาก ช่วยลดกลิ่นปากได้"},
+      {type:"warn",icon:"⚠️",title:"ระวัง — เมล็ดใน",detail:"เมล็ดแอปเปิ้ลมีสาร Amygdalin ที่ย่อยเป็น Cyanide ได้ ไม่ควรบดหรือเคี้ยวเมล็ด"}
+    ],
+    snack:[
+      {e:"🍎",n:"แอปเปิ้ลจิ้มเนยถั่ว",d:"หั่นแอปเปิ้ลเป็นแว่น จิ้มกับเนยถั่วอัลมอนด์ โรยเมล็ดเจียเพิ่มเติม",t:"โปรตีนสูง"},
+      {e:"🥗",n:"สลัดแอปเปิ้ลวอลนัท",d:"แอปเปิ้ล+วอลนัท+ชีสเฟต้า+ผักสลัด ราดน้ำสลัดน้ำผึ้งมัสตาร์ด",t:"ไขมันดีสูงและบำรุงสมอง"},
+      {e:"🍯",n:"แอปเปิ้ลอบอบเชย",d:"หั่นแอปเปิ้ลแว่นหนา อบกับน้ำตาลทรายแดงและอบเชยที่ 180°C นาน 25 นาที",t:"ช่วยเผาผลาญและคุมน้ำตาล"},
+      {e:"🧁",n:"แอปเปิ้ลชีส Bruschetta",d:"ขนมปังกรอบทาชีสครีม วางแอปเปิ้ลหั่นบาง หยดน้ำผึ้ง โรยวอลนัทบด",t:"แคลเซียมสูง"},
+      {e:"🍵",n:"ชาแอปเปิ้ลขิง",d:"ต้มแอปเปิ้ล+ขิง+อบเชย+กานพลูในน้ำ 15 นาที ดื่มอุ่นๆ ช่วยย่อยอาหาร",t:"ช่วยย่อยอาหารและลดท้องอืด"}
+    ],
+    smoothie:[
+      {e:"🥤",n:"Apple Detox Juice",d:"แอปเปิ้ล+แตงกวา+ขึ้นฉ่าย+มะนาว+น้ำเย็น ปั่นเนียน",t:"ขับสารพิษและลดบวม"},
+      {e:"🔴",n:"Red Apple Cooler",d:"แอปเปิ้ลแดง+ผักโขม+ขิงสด+น้ำแข็ง ปั่นละเอียด",t:"ธาตุเหล็กสูงและดีต่อเลือด"},
+      {e:"🍋",n:"Apple Lemon Ginger Shot",d:"แอปเปิ้ล+มะนาวคั้น+ขิงสด+น้ำผึ้ง บำรุงภูมิคุ้มกัน",t:"วิตามินซีสูงและเสริมภูมิคุ้มกัน"},
+      {e:"🍂",n:"Apple Cinnamon Smoothie",d:"แอปเปิ้ล+นมโอ๊ต+อบเชย+น้ำตาลโตนด หอมหวาน",t:"ใยอาหารสูงและอิ่มนาน"},
+      {e:"🫐",n:"Apple Berry Blast",d:"แอปเปิ้ล+บลูเบอรี่+สตรอเบอรี่+น้ำมะพร้าว แอนตี้ออกซิแดนท์สูง",t:"ต้านอนุมูลอิสระสูง"}
+    ]
+  },
+  banana:{
+    name:"กล้วย", latin:"Musa acuminata · AAA Cavendish", emoji:"🍌",
+    status:"สุก", conf:94,
+    nut:{e:89,k:358,c:8.7},
+    advice:"กล้วยสุกพอดีเยี่ยม โพแทสเซียมสูงที่สุดในกลุ่มผลไม้เมืองร้อน ช่วยบำรุงหัวใจ กล้ามเนื้อ และลดความดันโลหิต ควรรับประทานวันนี้หรือทำ Smoothie ทันที",
+    primary:"smoothie",
+    health:[
+      {type:"good",icon:"🍌",title:"ควรรับประทาน — สุกพอดี",detail:"เปลือกเหลืองสม่ำเสมอ อาจมีจุดน้ำตาลเล็กน้อย หวานหอม เนื้อนุ่ม เหมาะทานทันที"},
+      {type:"good",icon:"💪",title:"บำรุงกล้ามเนื้อ",detail:"โพแทสเซียม 358 mg/100g สูงสุด ป้องกันตะคริว ฟื้นฟูกล้ามเนื้อหลังออกกำลังกาย"},
+      {type:"good",icon:"🧠",title:"บำรุงสมองและอารมณ์",detail:"ทริปโตเฟนแปลงเป็นเซโรโทนิน ช่วยลดความเครียดและอาการซึมเศร้าได้อย่างเป็นธรรมชาติ"},
+      {type:"good",icon:"🩺",title:"ดีต่อระบบย่อยอาหาร",detail:"เส้นใย Pectin และ Resistant Starch เลี้ยงแบคทีเรียดีในลำไส้ ลดท้องผูก"},
+      {type:"warn",icon:"⚠️",title:"ระวัง — พลังงานสูง",detail:"89 kcal/100g หากต้องการลดน้ำหนักควรจำกัดที่วันละ 1–2 ลูก โดยเฉพาะกล้วยสุกมาก"}
+    ],
+    snack:[
+      {e:"🍌",n:"กล้วยบดข้าวโอ๊ต",d:"บดกล้วยสุก 1 ลูกผสมข้าวโอ๊ต 3 ช้อนโต๊ะ โรยงาดำและเมล็ดฟักทอง ทานได้เลย",t:"ใยอาหารสูงและอิ่มนาน"},
+      {e:"🫙",n:"กล้วยจิ้มช็อกโกแลตดาร์ก",d:"ปักไม้ไอศกรีม จุ่มช็อกโกแลตดาร์กละลาย โรยเกลือทะเล แช่แข็ง 1 ชั่วโมง",t:"ต้านอนุมูลอิสระและบำรุงหัวใจ"},
+      {e:"🥜",n:"กล้วยเนยถั่วอัลมอนด์",d:"หั่นกล้วยแว่น ราดเนยถั่วอัลมอนด์ โรยเมล็ดเจียและโกโก้นิบส์",t:"โปรตีนและไขมันดีสูง"},
+      {e:"🧁",n:"กล้วยปิ้งน้ำผึ้งอบเชย",d:"ผ่ากล้วยตามยาว ปิ้งกระทะไฟกลาง หยดน้ำผึ้งและโรยอบเชย เสิร์ฟอุ่น",t:"ช่วยเผาผลาญและรักษาระดับน้ำตาล"},
+      {e:"🍞",n:"กล้วยโทสต์อะโวคาโด",d:"ขนมปังโฮลวีทปิ้ง ทาอะโวคาโดบด วางกล้วยหั่นแว่น โรยพริกป่นและเกลือ",t:"บำรุงสมองและพลังงานสะอาด"}
+    ],
+    smoothie:[
+      {e:"🥤",n:"Banana Smoothie Bowl",d:"กล้วย 2 ลูก+นมโอ๊ต+น้ำผึ้ง ปั่นข้น ใส่ชาม โรยกราโนล่า+บลูเบอรี่+เมล็ดเจีย",t:"คาร์โบไฮเดรตดีและพลังงานสูงย"},
+      {e:"🟢",n:"Green Banana Detox",d:"กล้วย+ผักโขม+แอปเปิ้ลเขียว+ขิง+น้ำเปล่า ปั่นละเอียด",t:"ขับล้างสารพิษและลดท้องอืด"},
+      {e:"🍫",n:"Choco Banana Power Shake",d:"กล้วย+ผงโกโก้+นมอัลมอนด์+น้ำแข็ง+เนยถั่ว พลังงานสูงมาก",t:"สร้างกล้ามเนื้อและฟื้นฟูร่างกาย"},
+      {e:"🥥",n:"Banana Coconut Tropical",d:"กล้วย+น้ำมะพร้าว+มะม่วง+สับปะรด ปั่นรวม รสเขตร้อน",t:"เติมความสดชื่นและเกลือแร่"},
+      {e:"🍓",n:"Banana Berry Blast",d:"กล้วย+สตรอเบอรี่+ราสพ์เบอรี่+โยเกิร์ตกรีก ปั่นเนียน",t:"วิตามินซีสูงและเสริมภูมิคุ้มกัน"}
+    ]
+  },
+  mango:{
+    name:"มะม่วง", latin:"Mangifera indica · Nam Dok Mai", emoji:"🥭",
+    status:"สุก", conf:91,
+    nut:{e:60,k:168,c:36.4},
+    advice:"มะม่วงสุกหอมหวานสมบูรณ์แบบ วิตามิน C สูงกว่าส้ม 30% มีเบต้าแคโรทีนบำรุงสายตาและผิวพรรณ เหมาะทานสดหรือทำ Lassi วันนี้ได้เลย",
+    primary:"smoothie",
+    health:[
+      {type:"good",icon:"🥭",title:"ควรรับประทาน — สุกเต็มที่",detail:"กลิ่นหอมฉุน เนื้อสีเหลืองเข้ม อ่อนนุ่มพอดี เหมาะทานสดหรือแช่เย็นเล็กน้อย"},
+      {type:"good",icon:"👁️",title:"บำรุงสายตา",detail:"เบต้าแคโรทีนสูงมาก แปลงเป็น Vitamin A บำรุงดวงตา ป้องกันตาบอดตอนกลางคืน"},
+      {type:"good",icon:"✨",title:"บำรุงผิวพรรณ",detail:"Vitamin C สร้างคอลลาเจน ลดริ้วรอย ต้านอนุมูลอิสระ ผิวกระจ่างใสจากภายใน"},
+      {type:"good",icon:"🛡️",title:"เสริมภูมิคุ้มกัน",detail:"Vitamin C 36.4mg + Quercetin + Mangiferin เสริมภูมิคุ้มกัน ต้านไวรัสและแบคทีเรีย"},
+      {type:"warn",icon:"⚠️",title:"ระวัง — น้ำตาลสูงในผู้ป่วยเบาหวาน",detail:"GI = 51 น้ำตาลฟรุกโตสสูง ผู้ป่วยเบาหวานควรจำกัดที่ครึ่งลูกต่อมื้อ"}
+    ],
+    snack:[
+      {e:"🍚",n:"มะม่วงข้าวเหนียวมูน",d:"ข้าวเหนียวมูนนึ่งราดกะทิ วางมะม่วงสุกหั่นแว่น โรยงาขาว",t:"ให้พลังงานสูงย"},
+      {e:"🥗",n:"สลัดมะม่วงสดมิ้นต์",d:"มะม่วงสุกหั่นลูกเต๋า+ใบมิ้นต์+พริกขี้หนู+มะนาว+น้ำปลาเล็กน้อย",t:"ช่วยย่อยอาหารและขับลม"},
+      {e:"🫙",n:"มะม่วงตากแห้ง DIY",d:"หั่นมะม่วงบาง อบที่ 65–70°C นาน 5–6 ชั่วโมง เก็บใส่ถุงซิปได้ 2 สัปดาห์",t:"ใยอาหารสูง"},
+      {e:"🍡",n:"มะม่วงปักไม้ซอสหวานเปรี้ยว",d:"มะม่วงสุกปักไม้ ราดซอสพริกหวาน+น้ำปลา+มะนาว โรยงาดำคั่ว",t:"กระตุ้นการเผาผลาญ"},
+      {e:"🧀",n:"มะม่วงชีสสเปรดแครกเกอร์",d:"ทาชีสครีมบนแครกเกอร์ วางมะม่วงหั่นบาง หยดน้ำผึ้ง",t:"แคลเซียมและวิตามินเอสูง"}
+    ],
+    smoothie:[
+      {e:"🥤",n:"Mango Lassi",d:"มะม่วง 1 ลูก+โยเกิร์ตกรีก 150ml+น้ำผึ้ง+น้ำแข็ง+เกลือเล็กน้อย ปั่นเนียน",t:"โปรตีนและโพรไบโอติกสูง"},
+      {e:"🌴",n:"Tropical Mango Fusion",d:"มะม่วง+สับปะรด+มะพร้าว+น้ำแข็ง รสเขตร้อนเข้มข้น",t:"เติมความสดชื่นและเกลือแร่"},
+      {e:"🍊",n:"Mango Orange Sunrise",d:"มะม่วง+ส้มคั้นสด 2 ลูก+ขิงสด+น้ำผึ้ง วิตามิน A+C สูงมาก",t:"วิตามินซีสูงและบำรุงสายตา"},
+      {e:"🌿",n:"Mango Mint Cooler",d:"มะม่วง+ใบมิ้นต์สด+น้ำมะนาว+น้ำแข็ง รสสดชื่น",t:"ลดความร้อนในร่างกาย"},
+      {e:"🍓",n:"Mango Strawberry Shake",d:"มะม่วง+สตรอเบอรี่+กล้วย+นมอัลมอนด์ สีชมพูสวย",t:"ต้านอนุมูลอิสระสูง"}
+    ]
+  },
+  orange:{
+    name:"ส้ม", latin:"Citrus reticulata · Sai Nam Phueng", emoji:"🍊",
+    status:"สุก", conf:89,
+    nut:{e:47,k:181,c:53.2},
+    advice:"ส้มสายน้ำผึ้งสุกพอดี วิตามิน C สูงมาก ช่วยเสริมภูมิคุ้มกัน สาร Hesperidin ต้านการอักเสบ ควรคั้นน้ำดื่มสดๆ หรือทำ Smoothie เพื่อประสิทธิภาพสูงสุด",
+    primary:"smoothie",
+    health:[
+      {type:"good",icon:"🍊",title:"ควรรับประทาน — สุกพอดี",detail:"เปลือกสีส้มสม่ำเสมอ หนังผิวเรียบตึง กดนิ้วแล้วยืดหยุ่นดี กลิ่นหอม เหมาะคั้นสดทันที"},
+      {type:"good",icon:"🛡️",title:"เสริมภูมิคุ้มกัน",detail:"Vitamin C 53.2mg ต่อ 100g — หนึ่งลูกให้ Vitamin C เกือบเต็ม RDA รายวัน ต้านหวัดและการอักเสบ"},
+      {type:"good",icon:"🫀",title:"ดีต่อหลอดเลือด",detail:"Hesperidin ลดความดันโลหิต ลดคอเลสเตอรอล LDL ป้องกันการอุดตันในหลอดเลือด"},
+      {type:"good",icon:"🦴",title:"บำรุงกระดูก",detail:"แคลเซียมและ Vitamin C ร่วมกันช่วยสังเคราะห์คอลลาเจน เสริมความแข็งแรงของกระดูกและฟัน"},
+      {type:"warn",icon:"⚠️",title:"ระวัง — กรดซิตริกสูง",detail:"ผู้มีกระเพาะอาหารไวต่อกรดหรือเป็นกรดไหลย้อนควรหลีกเลี่ยงทานขณะท้องว่าง"}
+    ],
+    snack:[
+      {e:"🍊",n:"ส้มปอกสดทานเล่น",d:"ปอกส้มทั้งลูก โรยเกลือนิดหน่อยเพิ่มรสชาติ",t:"วิตามินซีสูง"},
+      {e:"🥗",n:"สลัดส้มผักสดเมล็ดทับทิม",d:"ส้ม+ผักสลัดหลากสี+เมล็ดทับทิม+น้ำสลัดน้ำผึ้งมัสตาร์ด",t:"ใยอาหารสูงและบำรุงผิว"},
+      {e:"🍫",n:"ส้มจิ้มช็อกโกแลตดาร์ก",d:"หั่นส้มเป็นแว่น จุ่มช็อกโกแลตดาร์กละลาย โรยเกลือทะเล แช่เย็น",t:"ต้านอนุมูลอิสระและบำรุงหัวใจ"},
+      {e:"🧁",n:"Candied Orange Peel",d:"ต้มเปลือกส้มในน้ำเชื่อม 3 รอบ เคลือบน้ำตาล อบแห้ง",t:"ช่วยย่อยอาหาร"},
+      {e:"🍢",n:"ส้มปักไม้ราดพริกเกลือ",d:"ส้มหั่นแว่น ปักไม้ ราดพริกเกลือและน้ำปลา",t:"กระตุ้นการเผาผลาญ"}
+    ],
+    smoothie:[
+      {e:"🥤",n:"Orange Sunrise Smoothie",d:"ส้ม 3 ลูก+แครอท 1 หัว+ขิงสด+น้ำผึ้ง ปั่นรวม วิตามิน A+C สูงสุด",t:"วิตามินเอสูงและบำรุงสายตา"},
+      {e:"🍋",n:"Citrus Power Bomb",d:"ส้ม+มะนาว+เกรปฟรุต+น้ำผึ้ง+น้ำเปล่า วิตามิน C สูงสุด",t:"วิตามินซีสูงและเสริมภูมิคุ้มกัน"},
+      {e:"🌿",n:"Orange Green Detox",d:"ส้ม+ผักโขม+แตงกวา+ขิง+น้ำมะพร้าว เดท็อกซ์พรีเมียม",t:"ขับล้างสารพิษและลดบวม"},
+      {e:"🥭",n:"Orange Mango Tropical",d:"ส้ม+มะม่วง+สับปะรด+น้ำแข็ง รสเขตร้อน",t:"เติมความสดชื่นและเกลือแร่"},
+      {e:"🫐",n:"Orange Berry Antioxidant",d:"ส้ม+บลูเบอรี่+สตรอเบอรี่+โยเกิร์ต แอนตี้ออกซิแดนท์สูง",t:"ต้านอนุมูลอิสระสูง"}
+    ]
+  },
+  papaya:{
+    name:"มะละกอ", latin:"Carica papaya · Kaek Dam", emoji:"🍈", isSvg:true,
+    status:"สุก", conf:88,
+    nut:{e:43,k:182,c:61.8},
+    advice:"มะละกอสุกอุดมวิตามิน C สูงที่สุดในผลไม้ไทย มีเอนไซม์ Papain ช่วยย่อยโปรตีน ดีต่อระบบย่อยอาหาร ผิวพรรณสดใส ทานตอนเช้าก่อนอาหารได้ผลดีมาก",
+    primary:"smoothie",
+    health:[
+      {type:"good",icon:`<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" style="width:1.3rem;height:1.3rem;vertical-align:middle;display:inline-block;flex-shrink:0;"><path d="M925.1 55.6c11.3 10.2 111.4 103 91.6 186.6-6.8 28.7-29.6 69.3-31.2 72-20.4 35.6-31.8 41.2-51.6 70.4-23.4 34.5-33.1 65.7-51.6 126.7-15.4 50.6-19.3 76-28.2 112.6-16.2 66.8-33.9 139-75.1 206.4-17.9 29.2-66.6 106.7-164.2 154.8-89.6 44.2-171.8 39.8-206.4 37.5-164-10.8-272.3-112.3-305-145.4C377.3 603.4 651.2 329.5 925.1 55.6z" fill="#7CB342"/><path d="M682.5 817c18.9-26.1 24-39.7 72.1-162 106.3-270.4 110.9-278.3 127.3-294.1 23.8-22.9 69.3-61.9 91.5-127.2 3.8-11.1 6.1-23 7-37 5.1-78.8-50.6-136.1-55.4-140.9C920.2 51 862.8-4.7 784.1 0.4c-14 0.9-26 3.2-37 7-66.7 22.8-107.6 70.3-127.2 91.5-26.5 28.8-108.2 60-272.1 122-126.5 47.9-157.5 52.2-208.3 93.3-21.1 17.1-64 52.4-96 113.3C-14.1 537 7.4 645.8 15 683.4c18 89.3 63.5 160 88.2 193.4 117.6 84.3 214.4 98.8 214.4 98.8 17.3 2.6 92.8 12.5 181-20.1 105.9-39.1 162-114.4 181.1-140.7z" fill="#FFD54F"/><path d="M617.7 774.7c29.5-33.4 47.9-63 56.4-77.8 19-32.6 31.5-62.9 40-87.8 26.8-101.6 77-216.9 115.8-265.4 1.6-2 12-13.8 25.7-30.4 21.3-25.8 33-40 45.5-59.3 17.9-27.5 34-52.9 25.1-70.6-3.2-6.4-9.5-11.6-10.1-12-11.9-7.7-22-9.3-29.4-9.1-20.7 0.6-37.8 14.3-61.2 43-9 11.1-19.4 22.4-30.4 34.4-8.4 9.1-17 18.6-25.8 28.7C745.5 295.7 667 399.9 626 518.9c-3.5 10.1-10.9 32.6-23.7 63.3-11 26.4-20 50.1-33.6 70.7-27 40.9-62.4 67.5-82.7 82.7-6.3 4.7-36.6 26.9-85.2 41.1-19.9 5.8-58.7 16.7-109.6 11.4-33.2-3.4-59.5-12.5-76.6-19.8-26.6-71.7-7-138.2 0-160.9 12.3-39.6 30.6-67.3 40.2-80.5 22-30.1 44.8-48.2 60.3-60.3 10.6-8.3 28.4-22 54.3-34.8 15.4-7.6 23.6-9.9 56.1-22.4 23-8.8 41.5-16.4 53.2-21.2 176.7-93.5 235.5-129.7 250.3-143.2 19.3-17.1 20.6-17.8 28.2-24.7 32.7-29.7 49.1-44.6 50.4-65.1 0.2-3.3 1.2-18.7-8.8-31.3-0.7-0.9-5.4-6.7-11.4-9.7-18.7-9.4-46.8 9.2-76.8 29.6-17.6 12-31.5 22.4-53.9 41.9-9.7 8.4-19.8 17.2-30.4 25.7-54.7 43.7-173.4 77.6-265.4 115.8-54.7 22.7-101.8 42.3-154.8 84.7-23.9 19.2-95.9 80.5-127.1 167.3-10.5 29.2-15.6 59.1-16 61.5-5.9 35.4-5.5 65.8-3.6 88 0 0 5 58.6 54.1 159.9 101.8 49 159.6 53.9 159.6 53.9 22.1 1.8 52.5 2.3 88-3.6 14.9-2.5 37.4-7.2 61.4-16 78-28.7 126.3-83.3 155.6-116.5z" fill="#FFAB40"/><path d="M526.2 623.4c9.9-9.9 13.2-23.3 9.3-33.3 2.8-1.6 5.4-3.6 7.9-6 8-8 11.7-18.3 10.8-27.2 3.8-1.8 7.5-4.4 10.8-7.6 11.8-11.8 14.3-28.5 6.3-38.5 2.3-1.5 4.5-3.1 6.5-5.2 11.8-11.8 14.3-28.5 6.3-38.5 2.3-1.5 4.5-3.1 6.5-5.2 11.8-11.8 14.3-28.5 6.3-38.5 3.8-2.5 7.4-5.7 10.3-9.6 10.5-14 9.4-31.4-2.5-38.7-11.9-7.3-30-1.9-40.5 12.2-0.5 0.7-0.9 1.4-1.3 2.1-10-8-26.7-5.6-38.5 6.2-2 2-3.7 4.2-5.2 6.5-10-8-26.7-5.5-38.5 6.3-2 2-3.7 4.2-5.2 6.5-10-8-26.7-5.5-38.5 6.3-2.4 2.4-4.4 5.1-6 7.9-10-3.9-23.3-0.6-33.3 9.3-3.3 3.3-5.8 7-7.6 10.8-8.9-0.9-19.2 2.8-27.2 10.8-5.4 5.4-8.7 11.8-10.1 18.1-6.3 1.4-12.7 4.8-18.1 10.1-9.9 9.9-13.2 23.3-9.3 33.3-2.8 1.6-5.4 3.6-7.9 6-8 8-11.7 18.3-10.8 27.2-3.8 1.8-7.5 4.4-10.8 7.6-11.8 11.8-14.3 28.5-6.3 38.5-2.3 1.5-4.5 3.1-6.5 5.2-11.8 11.8-14.3 28.5-6.3 38.5-2.3 1.5-4.5 3.1-6.5 5.2-11.8 11.8-14.3 28.5-6.3 38.5-3.8 2.5-7.4 5.7-10.3 9.6-10.5 14-9.4 31.4 2.5 38.7 11.9 7.3 30 1.9 40.5-12.2 0.5-0.7 0.9-1.4 1.3-2.1 10 8 26.7 5.6 38.5-6.2 2-2 3.7-4.2 5.2-6.5 10 8 26.7 5.5 38.5-6.3 2-2 3.7-4.2 5.2-6.5 10 8 26.7 5.5 38.5-6.3 2.4-2.4 4.4-5.1 6-7.9 10 3.9 23.3 0.6 33.3-9.3 3.3-3.3 5.8-7 7.6-10.8 8.9 0.9 19.2-2.8 27.2-10.8 5.4-5.4 8.7-11.8 10.1-18.1 6.4-1.4 12.7-4.7 18.1-10.1z" fill="#424242"/></svg>`,title:"ควรรับประทาน — สุก",detail:"เปลือกเหลืองส้มสม่ำเสมอ กดเบาๆ นิ่มพอดี กลิ่นหอมอ่อนๆ เนื้อสีส้มสด — เหมาะทานเช้า"},
+      {type:"good",icon:"🍽️",title:"ช่วยย่อยอาหาร",detail:"เอนไซม์ Papain ย่อยโปรตีนอย่างมีประสิทธิภาพ ช่วยลดอาการท้องอืด ท้องเฟ้อหลังอาหาร"},
+      {type:"good",icon:"✨",title:"ผิวสวยจากภายใน",detail:"Vitamin C 61.8mg สูงสุดในผลไม้ไทย + Lycopene + เบต้าแคโรทีน ผิวกระจ่างใส ลดรอยดำ"},
+      {type:"good",icon:"🩸",title:"ต้านการอักเสบ",detail:"สาร Chymopapain และ Papain ลดการอักเสบเรื้อรัง ดีต่อผู้มีอาการปวดข้อและกล้ามเนื้อ"},
+      {type:"bad",icon:"🚫",title:"ไม่ควรรับประทาน — หากตั้งครรภ์",detail:"มะละกอดิบมีสาร Latex สูง กระตุ้นมดลูกหดตัว มีความเสี่ยงต่อการแท้ง โดยเฉพาะไตรมาสแรก"}
+    ],
+    snack:[
+      {e:"🍽️",n:"มะละกอตัดแว่นมะนาวเกลือ",d:"หั่นมะละกอสุกเป็นแว่นหนา บีบมะนาวสด โรยเกลือทะเลนิดหน่อย",t:"วิตามินซีสูงและช่วยย่อย"},
+      {e:"🥗",n:"มะละกอคลุกมะพร้าวขูด",d:"มะละกอสุกคลุกกับมะพร้าวขูดสด น้ำตาลมะพร้าว และงาคั่ว",t:"ให้พลังงานและไขมันดี"},
+      {e:"🫙",n:"มะละกอดองน้ำส้มสายชู",d:"มะละกอดิบหั่นท่อน หมักในน้ำส้มสายชู+เกลือ+น้ำตาล+พริก เก็บได้ 2 สัปดาห์",t:"ช่วยระบบขับถ่ายและโพรไบโอติก"},
+      {e:"🍡",n:"มะละกอสุกปักไม้จิ้มซอส",d:"มะละกอสุกหั่นลูกเต๋า ปักไม้เสียบ จิ้มซอสพริกหวานหรือน้ำผึ้งมะนาว",t:"เบต้าแคโรทีนสูง"},
+      {e:"🥑",n:"Papaya Avocado Toast",d:"ขนมปังโฮลวีททาอะโวคาโดบด วางมะละกอสุกหั่น โรยเมล็ดเจียและพริกป่นดำ",t:"ใยอาหารสูงและบำรุงผิว"}
+    ],
+    smoothie:[
+      {e:"🥤",n:"Papaya Beauty Smoothie",d:"มะละกอ 1 ถ้วย+น้ำส้มคั้น 100ml+โยเกิร์ตกรีก+น้ำผึ้ง ปั่นละเอียด ดีต่อผิวพรรณ",t:"บำรุงผิวพรรณและกระจ่างใส"},
+      {e:"🌿",n:"Papaya Ginger Cleanse",d:"มะละกอ+ขิงสด 2 ชิ้น+มะนาว+น้ำเปล่า ปั่นรวม เดท็อกซ์จากธรรมชาติ",t:"ขับล้างสารพิษและลดท้องอืด"},
+      {e:"🥥",n:"Papaya Coconut Bliss",d:"มะละกอ+น้ำมะพร้าว+น้ำตาลโตนด+กะทิเล็กน้อย ปั่นเนียน หอมมะพร้าว",t:"เติมความสดชื่นและแร่ธาตุ"},
+      {e:"🍍",n:"Papaya Pineapple Enzyme",d:"มะละกอ+สับปะรด เอนไซม์ย่อยสูงสุด ดื่มหลังอาหารแก้ท้องอืด",t:"เอนไซม์ช่วยย่อยอาหารสูงสุด"},
+      {e:"🌸",n:"Papaya Rose Smoothie",d:"มะละกอ+น้ำกุหลาบ+โยเกิร์ต+น้ำผึ้ง+น้ำแข็ง สีชมพูสวย",t:"ต้านอนุมูลอิสระและคลายเครียด"}
+    ]
+  },
+  grape:{
+    name:"องุ่น", latin:"Vitis vinifera · Thompson Seedless", emoji:"🍇",
+    status:"สุก", conf:92,
+    nut:{e:69,k:191,c:10.8},
+    advice:"องุ่นสุกหวานกำลังดี มีสาร Resveratrol ต้านอนุมูลอิสระสูงมาก ดีต่อหัวใจและหลอดเลือด ฟลาโวนอยด์บำรุงสมอง ควรรับประทานทั้งเปลือกเพื่อรับสารต้านอนุมูลอิสระเต็มที่",
+    primary:"smoothie",
+    health:[
+      {type:"good",icon:"🍇",title:"ควรรับประทาน — สุก",detail:"เม็ดแน่นติดขั้ว สีเขียวสม่ำเสมอ ผิวเป็นขี้ผึ้งบางๆ (Bloom) — สัญญาณของความสดใหม่"},
+      {type:"good",icon:"❤️",title:"บำรุงหัวใจและหลอดเลือด",detail:"Resveratrol ในเปลือก ลดคอเลสเตอรอล ป้องกันการอุดตัน ลดความเสี่ยงโรคหัวใจ 30–40%"},
+      {type:"good",icon:"🧠",title:"ต้านอนุมูลอิสระสูงสุด",detail:"Anthocyanin + Quercetin + Resveratrol รวมกัน ต้านอนุมูลอิสระ ชะลอความแก่ชราของเซลล์"},
+      {type:"good",icon:"😴",title:"ช่วยการนอนหลับ",detail:"มีเมลาโทนินตามธรรมชาติสูง รับประทานองุ่น 1 กำมือก่อนนอน ช่วยปรับวงจรการนอนหลับ"},
+      {type:"warn",icon:"⚠️",title:"ระวัง — น้ำตาลสูง",detail:"69 kcal/100g น้ำตาลสูงพอสมควร หากควบคุมน้ำหนักควรรับประทานไม่เกิน 15–20 เม็ดต่อวัน"}
+    ],
+    snack:[
+      {e:"🍇",n:"องุ่นแช่แข็ง Frozen Grapes",d:"ล้างองุ่นให้สะอาด เช็ดให้แห้ง แช่ช่องแข็ง 3 ชั่วโมง ทานเป็นไอศกรีมธรรมชาติ",t:"เติมความสดชื่นและคลายร้อน"},
+      {e:"🧀",n:"องุ่นชีสไม้เสียบ Aperitivo",d:"สลับองุ่น+ชีสคิวบ์+มะกอก เสียบไม้ ราดน้ำมันมะกอกและพริกไทยดำบด",t:"โปรตีนและไขมันดีสูง"},
+      {e:"🥗",n:"สลัดองุ่นวอลนัทบลูชีส",d:"องุ่น+วอลนัทอบ+บลูชีส+ผักสลัด ราดน้ำสลัดบาลซามิกครีม",t:"บำรุงสมองและหัวใจ"},
+      {e:"🍢",n:"องุ่นคาราเมลปักไม้",d:"เสียบไม้แล้วจุ่มคาราเมลอุ่น โรยถั่วป่นและงา แช่เย็นจนแข็ง",t:"ให้พลังงานและแคลเซียม"},
+      {e:"🫙",n:"แยมองุ่นโฮมเมด",d:"ต้มองุ่น+น้ำตาล+มะนาวจนข้นหนืด บรรจุขวดฆ่าเชื้อ ทาขนมปังได้ทันที",t:"ต้านอนุมูลอิสระจากเปลือก"}
+    ],
+    smoothie:[
+      {e:"🥤",n:"Grape Antioxidant Smoothie",d:"องุ่น 20 ลูก+บลูเบอรี่+สตรอเบอรี่+น้ำทับทิม ปั่นรวม แอนตี้ออกซิแดนท์สูงสุด",t:"ต้านอนุมูลอิสระสูงสุด"},
+      {e:"🍷",n:"Sparkling Grape Cooler",d:"ปั่นองุ่นกรอง+มะนาว+มิ้นต์+โซดาเย็น รสสดชื่น",t:"ช่วยระบายและลดความเครียด"},
+      {e:"🫐",n:"Purple Power Smoothie",d:"องุ่นดำ+บลูเบอรี่+อะไซ+โยเกิร์ต+น้ำผึ้ง สีม่วงเข้มสวยงาม",t:"ชะลอวัยและบำรุงเซลล์"},
+      {e:"🍊",n:"Grape Citrus Refresher",d:"องุ่น+ส้ม+มะนาว+น้ำแข็ง รสเปรี้ยวหวานสดชื่น",t:"วิตามินซีสูงและเสริมภูมิคุ้มกัน"},
+      {e:"🥭",n:"Grape Mango Fusion",d:"องุ่น+มะม่วงสุก+น้ำมะพร้าว+น้ำแข็ง ปั่นรวม รสหวานหอม",t:"บำรุงสายตาและเติมเกลือแร่"}
+    ]
+  }
+};
+
+const ORDER = ['apple','banana','mango','orange','papaya','grape'];
+let cur = null, curTab = 'snack', userImage = null;
+
+// SVG strings
+const PAPAYA_SVG_PATHS = `<path d="M925.1 55.6c11.3 10.2 111.4 103 91.6 186.6-6.8 28.7-29.6 69.3-31.2 72-20.4 35.6-31.8 41.2-51.6 70.4-23.4 34.5-33.1 65.7-51.6 126.7-15.4 50.6-19.3 76-28.2 112.6-16.2 66.8-33.9 139-75.1 206.4-17.9 29.2-66.6 106.7-164.2 154.8-89.6 44.2-171.8 39.8-206.4 37.5-164-10.8-272.3-112.3-305-145.4C377.3 603.4 651.2 329.5 925.1 55.6z" fill="#7CB342"/><path d="M682.5 817c18.9-26.1 24-39.7 72.1-162 106.3-270.4 110.9-278.3 127.3-294.1 23.8-22.9 69.3-61.9 91.5-127.2 3.8-11.1 6.1-23 7-37 5.1-78.8-50.6-136.1-55.4-140.9C920.2 51 862.8-4.7 784.1 0.4c-14 0.9-26 3.2-37 7-66.7 22.8-107.6 70.3-127.2 91.5-26.5 28.8-108.2 60-272.1 122-126.5 47.9-157.5 52.2-208.3 93.3-21.1 17.1-64 52.4-96 113.3C-14.1 537 7.4 645.8 15 683.4c18 89.3 63.5 160 88.2 193.4 117.6 84.3 214.4 98.8 214.4 98.8 17.3 2.6 92.8 12.5 181-20.1 105.9-39.1 162-114.4 181.1-140.7z" fill="#FFD54F"/><path d="M617.7 774.7c29.5-33.4 47.9-63 56.4-77.8 19-32.6 31.5-62.9 40-87.8 26.8-101.6 77-216.9 115.8-265.4 1.6-2 12-13.8 25.7-30.4 21.3-25.8 45.5-59.3 45.5-59.3 17.9-27.5 34-52.9 25.1-70.6-11.9-7.7-22-9.3-29.4-9.1-20.7 0.6-37.8 14.3-61.2 43-9 11.1-19.4 22.4-30.4 34.4-8.4 9.1-17 18.6-25.8 28.7C745.5 295.7 667 399.9 626 518.9c-3.5 10.1-10.9 32.6-23.7 63.3-11 26.4-20 50.1-33.6 70.7-27 40.9-62.4 67.5-82.7 82.7-6.3 4.7-36.6 26.9-85.2 41.1-19.9 5.8-58.7 16.7-109.6 11.4-33.2-3.4-59.5-12.5-76.6-19.8-26.6-71.7-7-138.2 0-160.9 12.3-39.6 30.6-67.3 40.2-80.5 22-30.1 44.8-48.2 60.3-60.3 10.6-8.3 28.4-22 54.3-34.8 15.4-7.6 23.6-9.9 56.1-22.4 23-8.8 41.5-16.4 53.2-21.2 176.7-93.5 235.5-129.7 250.3-143.2 28.6-25.7 28.6-25.7 28.6-25.7 19.3-17.1 20.6-17.8 28.2-24.7 32.7-29.7 49.1-44.6 50.4-65.1 0.2-3.3 1.2-18.7-8.8-31.3-18.7-9.4-46.8 9.2-76.8 29.6-17.6 12-31.5 22.4-53.9 41.9-9.7 8.4-19.8 17.2-30.4 25.7-54.7 43.7-173.4 77.6-265.4 115.8-54.7 22.7-101.8 42.3-154.8 84.7-23.9 19.2-95.9 80.5-127.1 167.3-10.5 29.2-15.6 59.1-16 61.5-5.9 35.4-5.5 65.8-3.6 88 0 0 5 58.6 54.1 159.9 101.8 49 159.6 53.9 159.6 53.9 22.1 1.8 52.5 2.3 88-3.6 14.9-2.5 37.4-7.2 61.4-16 78-28.7 126.3-83.3 155.6-116.5z" fill="#FFAB40"/><path d="M526.2 623.4c9.9-9.9 13.2-23.3 9.3-33.3 2.8-1.6 5.4-3.6 7.9-6 8-8 11.7-18.3 10.8-27.2 3.8-1.8 7.5-4.4 10.8-7.6 11.8-11.8 14.3-28.5 6.3-38.5 2.3-1.5 4.5-3.1 6.5-5.2 11.8-11.8 14.3-28.5 6.3-38.5 2.3-1.5 4.5-3.1 6.5-5.2 11.8-11.8 14.3-28.5 6.3-38.5 10.3-9.6 10.3-9.6 10.3-9.6 10.5-14 9.4-31.4-2.5-38.7-11.9-7.3-30-1.9-40.5 12.2-10-8-26.7-5.6-38.5 6.2-2 2-3.7 4.2-5.2 6.5-10-8-26.7-5.5-38.5 6.3-2 2-3.7 4.2-5.2 6.5-10-8-26.7-5.5-38.5 6.3-2.4 2.4-4.4 5.1-6 7.9-10-3.9-23.3-0.6-33.3 9.3-3.3 3.3-5.8 7-7.6 10.8-8.9-0.9-19.2 2.8-27.2 10.8-5.4 5.4-8.7 11.8-10.1 18.1-6.3 1.4-12.7 4.8-18.1 10.1-9.9 9.9-13.2 23.3-9.3 33.3-2.8 1.6-5.4 3.6-7.9 6-8 8-11.7 18.3-10.8 27.2-3.8 1.8-7.5 4.4-10.8 7.6-11.8 11.8-14.3 28.5-6.3 38.5-2.3 1.5-4.5 3.1-6.5 5.2-11.8 11.8-14.3 28.5-6.3 38.5-2.3 1.5-4.5 3.1-6.5 5.2-11.8 11.8-14.3 28.5-6.3 38.5 10.3-9.6 10.3-9.6 10.3-9.6 10.5-14 9.4-31.4 2.5-38.7 11.9 7.3 30 1.9 40.5-12.2 10 8 26.7 5.6 38.5-6.2 2-2 3.7-4.2 5.2-6.5 10 8 26.7 5.5 38.5-6.3 2-2 3.7-4.2 5.2-6.5 10 8 26.7 5.5 38.5-6.3 2.4-2.4 4.4-5.1 6-7.9 10 3.9 23.3 0.6 33.3-9.3 3.3-3.3 5.8-7 7.6-10.8 8.9 0.9 19.2-2.8 27.2-10.8 5.4-5.4 8.7-11.8 10.1-18.1 6.4-1.4 12.7-4.7 18.1-10.1z" fill="#424242"/>`;
+
+function buildTabs(){
+  document.getElementById('ftabs').innerHTML = ORDER.map(k=>{
+    const f = D[k];
+    const icon = k==='papaya'
+      ? `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" style="width:1.05rem;height:1.05rem;vertical-align:middle;display:inline-block;flex-shrink:0;">${PAPAYA_SVG_PATHS}</svg>`
+      : `<span class="ftab-e">${f.emoji}</span>`;
+    return `<button class="ftab" data-k="${k}" onclick="loadF('${k}',this)">
+      ${icon}${f.name}
+      <span class="ftag ${f.status==='สุก'?'fresh':'stale'}" style="display:none">${f.status==='สุก'?'สด':'ยังดิบ'}</span>
+    </button>`;
+  }).join('');
+}
+
+function loadF(k, btn){
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  const el = btn || document.querySelector(`.ftab[data-k="${k}"]`);
+  if(el) el.classList.add('active');
+
+  // Only update the fruit preview if no user image is shown
+  if(!userImage){
+    const em = document.getElementById('femoji');
+    const svgW = document.getElementById('papayaSvg');
+    if(D[k].isSvg){ em.style.display='none'; svgW.style.display='none'; }
+    else { em.style.display=''; em.textContent=D[k].emoji; svgW.style.display='none'; }
+  }
+
+  const ov = document.getElementById('sov');
+  ov.classList.add('on');
+  setTimeout(()=>{ ov.classList.remove('on'); cur=D[k]; render(cur); }, 1350);
+}
+
+function render(f){
+  const em = document.getElementById('femoji');
+  const svgW = document.getElementById('papayaSvg');
+  const iw = document.getElementById('iw');
+
+  // If user uploaded an image, keep it visible — don't show emoji/svg
+  if(userImage){
+    em.style.display='none';
+    svgW.style.display='none';
+    iw.style.display='block';
+  } else {
+    iw.style.display='none';
+    if(f.isSvg){
+      em.style.display='none';
+      svgW.style.display='block';
+      svgW.classList.remove('pop'); void svgW.offsetWidth; svgW.classList.add('pop');
+    } else {
+      svgW.style.display='none';
+      em.style.display='';
+      em.textContent=f.emoji;
+      em.classList.remove('pop'); void em.offsetWidth; em.classList.add('pop');
+    }
+  }
+
+  const sb=document.getElementById('sbadge');
+  sb.className='sbadge show '+(f.status==='สุก'?'ripe':'unripe');
+  document.getElementById('btext').textContent=f.status;
+  const cb=document.getElementById('cbadge'); cb.className='cbadge show'; cb.textContent=f.conf+'% แม่นยำ';
+
+  document.getElementById('fname').textContent=f.name;
+  document.getElementById('flatin').textContent=f.latin;
+  document.getElementById('fscore').style.display='';
+  document.getElementById('sval').textContent=f.conf+'%';
+
+  document.getElementById('ne').textContent=f.nut.e;
+  document.getElementById('nk').textContent=f.nut.k;
+  document.getElementById('nc2').textContent=f.nut.c;
+
+  // HEALTH INDICATORS
+  const hg = document.getElementById('healthGrid');
+  hg.innerHTML = (f.health||[]).map((h,i)=>`
+    <div class="hi ${h.type}" style="animation:slideUp 0.4s ${i*0.07}s cubic-bezier(0.22,1,0.36,1) both;">
+      <div class="hi-icon">${h.icon}</div>
+      <div class="hi-body">
+        <div class="hi-title">${h.title}</div>
+        <div class="hi-detail">${h.detail}</div>
+      </div>
+      <div class="hi-badge">${h.type==='good'?'✓ ดี':h.type==='bad'?'✗ ระวัง':'⚡ เตือน'}</div>
+    </div>`).join('');
+
+  document.getElementById('adv').textContent=f.advice;
+  document.getElementById('sc').classList.toggle('p',f.primary==='snack');
+  document.getElementById('sm').classList.toggle('p',f.primary==='smoothie');
+
+  // social card
+  const sheEl = document.getElementById('she');
+  if(f.isSvg){
+    sheEl.innerHTML=`<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" style="width:52px;height:52px;vertical-align:middle;">${PAPAYA_SVG_PATHS}</svg>`;
+  } else {
+    sheEl.textContent=f.emoji;
+  }
+  document.getElementById('shn').textContent=f.name;
+  const ss=document.getElementById('shst');
+  ss.className='scst '+(f.status==='สุก'?'ripe':'unripe');
+  ss.innerHTML=`<span>${f.status==='สุก'?'🟢':'🔴'} ${f.status==='สุก'?'ควรรับประทาน':'ยังไม่พร้อมทาน'}</span>`;
+  document.getElementById('she2').textContent=f.nut.e;
+  document.getElementById('shk').textContent=f.nut.k;
+  document.getElementById('shc').textContent=f.nut.c;
+  const rec=(f[f.primary]||[])[0];
+  document.getElementById('shr').textContent=rec?`เมนูแนะนำ: ${rec.n}`:'—';
+}
+
+function openRec(t){
+  if(!cur){showToast('กรุณาเลือกผลไม้ก่อน');return;}
+  curTab=t;
+  document.getElementById('rtitle').textContent=`🍽️ เมนู ${cur.name}`;
+  renderTab(t);
+  document.getElementById('recOv').classList.add('open');
+}
+function swTab(t){
+  curTab=t;
+  document.getElementById('ts').classList.toggle('on',t==='snack');
+  document.getElementById('tsm').classList.toggle('on',t==='smoothie');
+  renderTab(t);
+}
+function renderTab(t){
+  if(!cur)return;
+  document.getElementById('ts').classList.toggle('on',t==='snack');
+  document.getElementById('tsm').classList.toggle('on',t==='smoothie');
+  const list=cur[t]||[];
+  document.getElementById('rlist').innerHTML=list.map(r=>`
+    <div class="ritem" onclick="pickR('${r.n.replace(/'/g,"\\'")}')">
+      <div class="remoji">${r.e}</div>
+      <div class="rinfo">
+        <div class="rname">${r.n}</div>
+        <div class="rdesc">${r.d}</div>
+        <span class="rtag">${r.t}</span>
+      </div>
+      <div class="rarr">›</div>
+    </div>`).join('');
+}
+function pickR(n){
+  document.getElementById('shr').textContent=`เมนูที่เลือก: ${n}`;
+  close2('recOv'); showToast(`✓ เลือก: ${n}`);
+}
+function openShare(){
+  if(!cur){showToast('กรุณาเลือกผลไม้ก่อน');return;}
+  document.getElementById('shOv').classList.add('open');
+}
+function close2(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+function doShare(t){
+  const m={copy:'คัดลอกแล้ว ✓',save:'บันทึกแล้ว ✓',line:'เปิด LINE แล้ว ✓',ig:'เปิด Instagram แล้ว ✓'};
+  if(t==='copy'&&cur){
+    const status=cur.status==='สุก'?'✓ ควรรับประทาน':'✗ ยังไม่พร้อมทาน';
+    navigator.clipboard?.writeText(`🌿 NutriFresh Scan · Body & Health\n${cur.emoji} ${cur.name} — ${status}\n⚡${cur.nut.e}kcal | 💧${cur.nut.k}mg K | 🌟${cur.nut.c}mg Vit C\n#NutriFreshScan #BodyHealth #โภชนาการ`).catch(()=>{});
+  }
+  showToast(m[t]);
+  if(t!=='copy') close2('shOv');
+}
+
+function handleFile(e){
+  const f=e.target.files[0]; if(!f)return;
+  const rd=new FileReader();
+  rd.onload=ev=>{
+    userImage = ev.target.result;
+    document.getElementById('femoji').style.display='none';
+    document.getElementById('papayaSvg').style.display='none';
+    document.getElementById('uimg').src=userImage;
+    document.getElementById('iw').style.display='block';
+    const ov=document.getElementById('sov'); ov.classList.add('on');
+    setTimeout(()=>{
+      ov.classList.remove('on');
+      const k=ORDER[Math.floor(Math.random()*ORDER.length)];
+      // activate tab but keep user image
+      document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+      const el=document.querySelector(`.ftab[data-k="${k}"]`);
+      if(el) el.classList.add('active');
+      cur=D[k]; render(cur);
+      showToast(`✓ ตรวจพบ: ${D[k].name}`);
+    },2200);
+  };
+  rd.readAsDataURL(f);
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+document.getElementById('shdate').textContent=new Date().toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});
+buildTabs();
+loadF('banana');
+</script>
+</body>
+</html>
