@@ -13,5 +13,9 @@ __pycache__/
 *.py[cod]
 
 # --- Docker ---
-.docker/
+# Docker/
+# docker-compose.yml
 *.log
+
+# --- npm ---
+npm/
