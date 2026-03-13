@@ -935,14 +935,13 @@
       box-shadow: 0 10px 28px rgba(80, 60, 30, 0.12);
     }
 
-    .rcard:hover::before,
-    .rcard.p::before {
+    .rcard:hover::before {
       opacity: 1;
     }
 
     .rcard.p {
-      border-color: rgba(90, 138, 82, 0.38);
-      background: rgba(90, 138, 82, 0.08);
+      background: var(--gl, rgba(255, 252, 248, 0.7));
+      border-color: var(--border);
     }
 
     .ri {
@@ -983,7 +982,7 @@
     }
 
     .rcard.p .rstar {
-      opacity: 1;
+      opacity: 0;
     }
 
     /* SHARE BTN */
