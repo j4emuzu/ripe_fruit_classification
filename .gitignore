@@ -15,7 +15,10 @@ __pycache__/
 # --- Docker ---
 # Docker/
 # docker-compose.yml
+.dockerignore
 *.log
 
 # --- npm ---
 npm/
+
+.env/
