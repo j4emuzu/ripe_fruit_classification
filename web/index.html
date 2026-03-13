@@ -2544,6 +2544,508 @@
     document.getElementById('shdate').textContent = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
     buildTabs();
   </script>
+
+  <!-- ══════════════════════════════════════
+       GEMINI CHATBOT FLOATING WIDGET
+  ══════════════════════════════════════ -->
+  <style>
+    .cb-fab {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 900;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--leaf), var(--sage));
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 24px rgba(45, 90, 39, 0.38), 0 2px 8px rgba(45, 90, 39, 0.2);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      outline: none;
+    }
+    .cb-fab:hover {
+      transform: scale(1.1) translateY(-2px);
+      box-shadow: 0 10px 32px rgba(45, 90, 39, 0.45);
+    }
+    .cb-fab .cb-icon-chat,
+    .cb-fab .cb-icon-close {
+      position: absolute;
+      transition: all 0.22s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+    .cb-fab .cb-icon-close {
+      opacity: 0;
+      transform: rotate(-90deg) scale(0.6);
+    }
+    .cb-fab.open .cb-icon-chat {
+      opacity: 0;
+      transform: rotate(90deg) scale(0.6);
+    }
+    .cb-fab.open .cb-icon-close {
+      opacity: 1;
+      transform: rotate(0deg) scale(1);
+    }
+    .cb-dot {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #f0705a;
+      border: 2px solid white;
+      animation: cbpulse 2s ease infinite;
+    }
+    @keyframes cbpulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.7; }
+    }
+
+    /* CHAT WINDOW */
+    .cb-win {
+      position: fixed;
+      bottom: 98px;
+      right: 28px;
+      z-index: 899;
+      width: min(380px, calc(100vw - 32px));
+      height: min(560px, calc(100vh - 160px));
+      background: rgba(250, 247, 242, 0.97);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(180, 165, 140, 0.3);
+      border-radius: 24px;
+      box-shadow: 0 24px 70px rgba(80, 60, 30, 0.18), 0 4px 20px rgba(80, 60, 30, 0.08);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.85) translateY(20px);
+      transform-origin: bottom right;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+    .cb-win.open {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* HEADER */
+    .cb-head {
+      padding: 16px 20px 14px;
+      background: linear-gradient(135deg, var(--leaf), #3d7a35);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .cb-head-av {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .cb-head-info { flex: 1; }
+    .cb-head-name {
+      font-family: 'Instrument Serif', serif;
+      font-size: 1rem;
+      font-style: italic;
+      color: rgba(245, 240, 232, 0.95);
+      line-height: 1.1;
+    }
+    .cb-head-sub {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(142, 190, 130, 0.75);
+      margin-top: 1px;
+    }
+    .cb-head-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.62rem;
+      color: rgba(142, 190, 130, 0.7);
+      font-weight: 600;
+    }
+    .cb-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #6ee36e;
+      box-shadow: 0 0 6px rgba(110, 227, 110, 0.6);
+      animation: cbpulse 2.5s ease infinite;
+    }
+
+    /* MESSAGES */
+    .cb-msgs {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+    .cb-msgs::-webkit-scrollbar { width: 3px; }
+    .cb-msgs::-webkit-scrollbar-thumb {
+      background: rgba(180, 165, 140, 0.4);
+      border-radius: 2px;
+    }
+    .cb-msg {
+      display: flex;
+      gap: 8px;
+      animation: cbMsgIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+    }
+    @keyframes cbMsgIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .cb-msg.user { flex-direction: row-reverse; }
+    .cb-msg-av {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, rgba(90, 138, 82, 0.15), rgba(90, 138, 82, 0.08));
+      border: 1px solid rgba(90, 138, 82, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .cb-bubble {
+      max-width: 78%;
+      padding: 10px 13px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .cb-msg.bot .cb-bubble {
+      background: rgba(255, 253, 248, 0.9);
+      border: 1px solid rgba(180, 165, 140, 0.2);
+      border-radius: 4px 16px 16px 16px;
+      box-shadow: 0 2px 8px rgba(100, 80, 50, 0.06);
+    }
+    .cb-msg.user .cb-bubble {
+      background: linear-gradient(135deg, var(--leaf), #3d7a35);
+      color: white;
+      border-radius: 16px 4px 16px 16px;
+      box-shadow: 0 3px 12px rgba(45, 90, 39, 0.22);
+    }
+
+    /* TYPING */
+    .cb-typing {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 12px 16px;
+    }
+    .cb-typing span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--faint);
+      animation: cbdot 1.2s ease infinite;
+    }
+    .cb-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .cb-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes cbdot {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30%            { transform: translateY(-5px); opacity: 1; }
+    }
+
+    /* CHIPS */
+    .cb-chips {
+      padding: 0 14px 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+    .cb-chip {
+      font-size: 0.67rem;
+      font-weight: 600;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(90, 138, 82, 0.08);
+      border: 1px solid rgba(90, 138, 82, 0.2);
+      color: var(--sage);
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .cb-chip:hover {
+      background: rgba(90, 138, 82, 0.15);
+      border-color: rgba(90, 138, 82, 0.35);
+      color: var(--leaf);
+      transform: translateY(-1px);
+    }
+
+    /* INPUT BAR */
+    .cb-bar {
+      padding: 12px 14px 14px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      background: rgba(250, 247, 242, 0.95);
+    }
+    .cb-input {
+      flex: 1;
+      min-height: 38px;
+      max-height: 100px;
+      padding: 9px 13px;
+      border-radius: 18px;
+      border: 1px solid rgba(180, 165, 140, 0.3);
+      background: rgba(255, 253, 248, 0.8);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.8rem;
+      color: var(--text);
+      resize: none;
+      outline: none;
+      transition: border-color 0.18s;
+      line-height: 1.5;
+    }
+    .cb-input:focus {
+      border-color: rgba(90, 138, 82, 0.4);
+      background: rgba(255, 253, 248, 1);
+    }
+    .cb-input::placeholder { color: var(--faint); }
+    .cb-send {
+      width: 38px;
+      height: 38px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--leaf), var(--sage));
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 10px rgba(45, 90, 39, 0.28);
+      transition: all 0.18s cubic-bezier(0.34, 1.4, 0.64, 1);
+      outline: none;
+    }
+    .cb-send:hover:not(:disabled) {
+      transform: scale(1.1);
+      box-shadow: 0 5px 16px rgba(45, 90, 39, 0.38);
+    }
+    .cb-send:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+    .cb-send svg { width: 16px; height: 16px; fill: white; }
+    .cb-powered {
+      text-align: center;
+      font-size: 0.56rem;
+      color: var(--faint);
+      letter-spacing: 0.08em;
+      padding: 0 0 6px;
+      flex-shrink: 0;
+    }
+  </style>
+
+  <!-- FAB Button -->
+  <button class="cb-fab" id="cbFab" onclick="toggleChat()" title="ถามเรื่องผลไม้กับ AI">
+    <span class="cb-dot" id="cbDot"></span>
+    <span class="cb-icon-chat">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
+        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+      </svg>
+    </span>
+    <span class="cb-icon-close">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+      </svg>
+    </span>
+  </button>
+
+  <!-- Chat Window -->
+  <div class="cb-win" id="cbWin">
+    <div class="cb-head">
+      <div class="cb-head-av" style="background:linear-gradient(145deg,#fdf8ee,#f5edda);border-color:rgba(180,130,50,0.3);">
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+          <path d="M14 22 Q14 8 24 8 Q34 8 34 22" fill="none" stroke="#b5853a" stroke-width="3.2" stroke-linecap="round"/>
+          <ellipse cx="24" cy="34" rx="17" ry="10" fill="#c8903c"/>
+          <path d="M7.5 30 Q24 26 40.5 30" fill="none" stroke="#a0702a" stroke-width="1.2" opacity="0.7"/>
+          <path d="M7 34 Q24 30 41 34" fill="none" stroke="#a0702a" stroke-width="1.2" opacity="0.7"/>
+          <path d="M8 38 Q24 34.5 40 38" fill="none" stroke="#a0702a" stroke-width="1.2" opacity="0.6"/>
+          <ellipse cx="24" cy="25" rx="17" ry="5" fill="#d4a04a"/>
+          <ellipse cx="24" cy="24.5" rx="17" ry="4.5" fill="#e8b85a"/>
+          <ellipse cx="24" cy="22" rx="13" ry="5" fill="#5a9e46"/>
+          <path d="M17 19 Q20 14 26 17 Q22 20 17 19z" fill="#4a8a36"/>
+          <path d="M28 18 Q32 13 36 17 Q32 19 28 18z" fill="#5aaa46"/>
+          <circle cx="20" cy="20" r="5" fill="url(#cbLg1)"/>
+          <ellipse cx="18.5" cy="18" rx="1.5" ry="2" fill="rgba(255,255,255,0.35)" transform="rotate(-20,18.5,18)"/>
+          <circle cx="29" cy="20" r="4.5" fill="url(#cbLg2)"/>
+          <ellipse cx="27.8" cy="18.2" rx="1.2" ry="1.8" fill="rgba(255,255,255,0.3)" transform="rotate(-20,27.8,18.2)"/>
+          <circle cx="24" cy="17" r="2.8" fill="#7b3fa0"/>
+          <circle cx="21" cy="18.5" r="2.5" fill="#8b50b0"/>
+          <circle cx="27" cy="18.5" r="2.5" fill="#7b3fa0"/>
+          <circle cx="24" cy="20" r="2.5" fill="#8b50b0"/>
+          <circle cx="23" cy="16" r="0.8" fill="rgba(255,255,255,0.3)"/>
+          <defs>
+            <radialGradient id="cbLg1" cx="35%" cy="30%" r="60%">
+              <stop offset="0%" stop-color="#ff6060"/>
+              <stop offset="100%" stop-color="#b01818"/>
+            </radialGradient>
+            <radialGradient id="cbLg2" cx="35%" cy="30%" r="60%">
+              <stop offset="0%" stop-color="#e8f060"/>
+              <stop offset="100%" stop-color="#90a010"/>
+            </radialGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="cb-head-info">
+        <div class="cb-head-name"><em>Nutri</em>Assistant</div>
+        <div class="cb-head-sub">Powered by Gemini AI</div>
+      </div>
+      <div class="cb-head-status">
+        <div class="cb-status-dot"></div>ออนไลน์
+      </div>
+    </div>
+    <div class="cb-msgs" id="cbMsgs"></div>
+    <div class="cb-chips" id="cbChips">
+      <div class="cb-chip" onclick="sendChip(this)">🍎 แอปเปิ้ลมีประโยชน์อย่างไร?</div>
+      <div class="cb-chip" onclick="sendChip(this)">🥭 มะม่วงกินตอนไหนดี?</div>
+      <div class="cb-chip" onclick="sendChip(this)">🍌 กล้วยลดน้ำหนักได้ไหม?</div>
+      <div class="cb-chip" onclick="sendChip(this)">🍊 วิตามินซีในส้มมีเท่าไร?</div>
+    </div>
+    <div class="cb-bar">
+      <textarea class="cb-input" id="cbInput" placeholder="ถามเรื่องผลไม้ โภชนาการ สุขภาพ…" rows="1"
+        onkeydown="cbKey(event)" oninput="cbResize(this)"></textarea>
+      <button class="cb-send" id="cbSend" onclick="sendMsg()">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+    <div class="cb-powered">✦ NutriFresh · Gemini 2.0 Flash</div>
+  </div>
+
+  <script>
+    const GEMINI_API_KEY = 'AIzaSyA3udXRyl8h41FXaJFRgUYCWFrBPmHqxaM';
+    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+    let cbHistory = [], cbOpen = false, cbGreeted = false;
+
+    const SYSTEM_PROMPT = `คุณคือ NutriAssistant ผู้ช่วย AI ของ NutriFresh Scan
+เชี่ยวชาญเรื่อง: ผลไม้ไทยและสากล, โภชนาการ, ความสุกของผลไม้, สูตรอาหาร, สุขภาพจากผลไม้
+ตอบเป็นภาษาไทยเสมอ กระชับ เป็นมิตร ใช้ emoji ประกอบบ้าง
+ผลไม้ที่รองรับ: แอปเปิ้ล 🍎, กล้วย 🍌, มะม่วง 🥭, ส้ม 🍊, มะละกอ 🍈, สตรอเบอรี่ 🍓`;
+
+    function toggleChat() {
+      cbOpen = !cbOpen;
+      document.getElementById('cbFab').classList.toggle('open', cbOpen);
+      document.getElementById('cbWin').classList.toggle('open', cbOpen);
+      document.getElementById('cbDot').style.display = 'none';
+      if (cbOpen && !cbGreeted) {
+        cbGreeted = true;
+        setTimeout(() => addBotMsg('สวัสดีครับ! 🌿 ผมคือ NutriAssistant ยินดีช่วยตอบคำถามเรื่องผลไม้และโภชนาการครับ'), 350);
+      }
+      if (cbOpen) setTimeout(() => document.getElementById('cbInput').focus(), 400);
+    }
+
+    function addBotMsg(text) {
+      const msgs = document.getElementById('cbMsgs');
+      const div = document.createElement('div');
+      div.className = 'cb-msg bot';
+      div.innerHTML = `<div class="cb-msg-av">🌿</div><div class="cb-bubble">${text.replace(/\n/g, '<br>')}</div>`;
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function addUserMsg(text) {
+      const msgs = document.getElementById('cbMsgs');
+      const div = document.createElement('div');
+      div.className = 'cb-msg user';
+      div.innerHTML = `<div class="cb-bubble">${text}</div><div class="cb-msg-av">👤</div>`;
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function showTyping() {
+      const msgs = document.getElementById('cbMsgs');
+      const div = document.createElement('div');
+      div.className = 'cb-msg bot'; div.id = 'cbTyping';
+      div.innerHTML = `<div class="cb-msg-av">🌿</div><div class="cb-bubble cb-typing"><span></span><span></span><span></span></div>`;
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function hideTyping() { const t = document.getElementById('cbTyping'); if (t) t.remove(); }
+
+    function cbResize(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+    }
+
+    function cbKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+    }
+
+    function sendChip(el) {
+      document.getElementById('cbInput').value = el.textContent.replace(/^\S+\s/, '').trim();
+      sendMsg();
+      document.getElementById('cbChips').style.display = 'none';
+    }
+
+    async function sendMsg() {
+      const input = document.getElementById('cbInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      // Add current fruit context if available
+      let context = '';
+      if (typeof cur !== 'undefined' && cur) {
+        context = ` [ผู้ใช้กำลังดูผลไม้: ${cur.name} สถานะ: ${cur.status} ความแม่นยำ: ${cur.conf}%]`;
+      }
+
+      addUserMsg(text);
+      input.value = ''; input.style.height = 'auto';
+      document.getElementById('cbSend').disabled = true;
+      document.getElementById('cbChips').style.display = 'none';
+      cbHistory.push({ role: 'user', parts: [{ text: text + context }] });
+      showTyping();
+
+      try {
+        const res = await fetch(GEMINI_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            contents: cbHistory,
+            generationConfig: { temperature: 0.75, maxOutputTokens: 512 }
+          })
+        });
+        const data = await res.json();
+        hideTyping();
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (reply) {
+          cbHistory.push({ role: 'model', parts: [{ text: reply }] });
+          if (cbHistory.length > 20) cbHistory = cbHistory.slice(-20);
+          addBotMsg(reply);
+        } else {
+          addBotMsg('ขออภัยครับ ไม่สามารถตอบได้ในขณะนี้ 🙏');
+        }
+      } catch {
+        hideTyping();
+        addBotMsg('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่ครับ 🙏');
+      }
+      document.getElementById('cbSend').disabled = false;
+      document.getElementById('cbInput').focus();
+    }
+  </script>
 </body>
 
 </html>
