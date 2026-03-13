@@ -3089,7 +3089,8 @@
   </div>
 
   <script>
-    const GEMINI_URL = `/chat`;
+    const GEMINI_API_KEY = 'AIzaSyA3udXRyl8h41FXaJFRgUYCWFrBPmHqxaM';
+    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
     let cbHistory = [], cbOpen = false, cbGreeted = false;
 
     const SYSTEM_PROMPT = `คุณคือ NutriAssistant ผู้ช่วย AI ของ NutriFresh Scan

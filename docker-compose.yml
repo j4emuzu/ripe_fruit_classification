@@ -43,7 +43,7 @@ services:
   # └──────────────────────────────────────────────────────────────────┘
   api:
     build:
-      context: ./Docker
+      context: ./ai
       dockerfile: Dockerfile
     container_name: fruit_api
     restart: unless-stopped
@@ -53,8 +53,6 @@ services:
       - UVICORN_HOST=0.0.0.0
       - UVICORN_PORT=8000
       - UVICORN_LOG_LEVEL=info
-    env_file:
-      - .env
     volumes:
       - ./ai:/app:ro
     healthcheck:

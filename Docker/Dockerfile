@@ -55,8 +55,6 @@ RUN pip install --upgrade pip setuptools wheel && \
     requests==2.31.0 \
     python-multipart
 
-RUN pip install httpx
-
 # ─────────────────────────────────────────────────────────────────────
 # COPY APPLICATION CODE
 # DEV  : comment ไว้ — ใช้ volume mount ใน docker-compose.yml แทน
