@@ -206,7 +206,7 @@ ripe_fruit_classification/
 ├── npm/
 │   ├── data/                   # Nginx Proxy Manager data
 │   └── letsencrypt/            # SSL certificates
-├── nginx.conf                  # Nginx configuration
+│
 ├── docker-compose.yml          # Service orchestration
 ├── .env                        # Environment variables (not committed)
 ├── .dockerignore
@@ -218,7 +218,7 @@ ripe_fruit_classification/
 ## 🛠️ Development vs Production
 
 The Dockerfile supports two modes, controlled by the `COPY` instructions:
-
+x
 **Development (default)**
 - Code is served via volume mount (`./ai:/app`)
 - Uvicorn runs with `--reload` — changes to `main.py` are picked up automatically, no rebuild needed
@@ -283,12 +283,17 @@ docker exec -it fruit_api bash
 
 ---
 
+After complete all this Doc. Your Web can be acces in [localhost:80](http://localhost:80)
+For Example You can try to test in [My Personal Server](https://www.recasa888.duckdns.org)
+
+---
+
 ## 👥 Team
 
 **MercedesBenz Team** — Fruit Ripeness Classification v1.0
-Thanpisit Banyam
-Thoranin Akkaratham
-Chanatip Ruanjaiman
+- Thanpisit Banyam
+- Thoranin Akkaratham
+- Chanatip Ruanjaiman
 ---
 
 *FastAPI + YOLOv11 · Docker · Gemini AI*
