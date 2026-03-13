@@ -20,4 +20,4 @@ __pycache__/
 # --- npm ---
 npm/
 
-.env/
+.env
