@@ -27,7 +27,6 @@ services:
     restart: unless-stopped
     volumes:
       - ./web:/usr/share/nginx/html:ro
-    TZ: "Asia/Bangkok"
     networks:
       - app-network
     deploy:
@@ -54,7 +53,6 @@ services:
       - UVICORN_HOST=0.0.0.0
       - UVICORN_PORT=8000
       - UVICORN_LOG_LEVEL=info
-    TZ: "Asia/Bangkok"
     env_file:
       - .env
     volumes:
@@ -89,7 +87,6 @@ services:
       - "80:80" # HTTP
       - "443:443" # HTTPS
       - "81:81" # Admin UI
-    TZ: "Asia/Bangkok"
     volumes:
       - ./npm/data:/data
       - ./npm/letsencrypt:/etc/letsencrypt
