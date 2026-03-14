@@ -1770,7 +1770,7 @@
     <!-- Upload zone -->
     <div class="land-upload">
       <div class="land-dropzone" id="landDropzone">
-        <input type="file" accept="image/*" capture="environment" id="landFileInput" onchange="handleFile(event)">
+        <input type="file" accept="image/*" id="landFileInput" onchange="handleFile(event)">
         <div class="land-dz-icon">📷</div>
         <div class="land-dz-title">อัปโหลดรูปผลไม้</div>
         <div class="land-dz-hint">ลากวางรูปที่นี่ หรือคลิกเพื่อเลือกไฟล์<br>รองรับ JPG, PNG, HEIC</div>
@@ -1836,10 +1836,10 @@
               d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.5-10h-1.83l-1.08-1.17A2 2 0 0 0 15.14 4H8.86a2 2 0 0 0-1.45.61L6.33 5.5H4.5A2.5 2.5 0 0 0 2 8v10a2.5 2.5 0 0 0 2.5 2.5h15A2.5 2.5 0 0 0 22 18V8a2.5 2.5 0 0 0-2.5-2.5z" />
           </svg>
           สแกนใหม่
-          <input type="file" accept="image/*" capture="environment" id="resultFileInput" onchange="handleFile(event)"
+          <input type="file" accept="image/*" id="resultFileInput" onchange="handleFile(event)"
             style="position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;">
         </button>
-      </div>
+      </div>modified: web/index.html
     </header>
 
     <!-- Decorative fruit emojis row (non-interactive) -->
