@@ -117,7 +117,19 @@ Since the application uses Nginx Proxy Manager (NPM) to route traffic, you need 
    - **Forward Port:** `80`
    - ✅ Enable **Cache Assets**
    - ✅ Enable **Block Common Exploits**
-5. Click **Save**.
+   
+5. Configure the following settings in the **Custom Locations** tab:
+   - Click **Add Location**
+   - **Location:** '/predict'
+   - **Scheme:** `http`
+   - **Forward Hostname / IP:** `fruit_api`
+   - **Forward Port:** `8000`
+    - Click **Add Location**
+   - **Location:** '/chat'
+   - **Scheme:** `http`
+   - **Forward Hostname / IP:** `fruit_api`
+   - **Forward Port:** `8000`
+6. Click **Save**.
 
 ---
 
